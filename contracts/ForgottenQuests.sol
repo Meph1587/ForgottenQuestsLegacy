@@ -2,11 +2,12 @@
 pragma solidity ^0.8.7;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./WizardsMock.sol";
 import "./WizardStorage.sol";
+import "./RewardNFT.sol";
 
 contract ForgottenQuests {
     using SafeMath for uint16;
@@ -18,7 +19,11 @@ contract ForgottenQuests {
 
     Wizards wizards;
 
-    ERC721 rewardNFT;
+    RewardNFT rewardNFT;
+
+    ERC20 weth;
+
+    address feeAddress;
 
     struct Quest {
         uint256 id;
@@ -33,10 +38,12 @@ contract ForgottenQuests {
 
     Quest[] private questLog;
 
-    uint256 private lastQuestIssued;
+    uint256 private lastQuestIssuedAt;
 
-    uint256 private baseExpairation = 64800; // 1 week
+    uint256 private baseExpairation = 604800; // 1 week
     uint256 private baseDuration = 1209600; // 2 weeks
+
+    uint256 private COOLDOWN = 21600; //6 hours
 
     uint256 private baseFee = 10**16; //0.01 ETH
 
@@ -44,17 +51,22 @@ contract ForgottenQuests {
         address _wizardStorage,
         address _wizard,
         address _rewardNFT,
-        address _weth
+        address _weth,
+        address _feeAddress
     ) {
         wizardStorage = WizardStorage(_wizardStorage);
         wizards = Wizards(_wizard);
-        rewardNFT = ERC721(_rewardNFT);
-        weth = ERC20(_weth)
+        rewardNFT = RewardNFT(_rewardNFT);
+        weth = ERC20(_weth);
+        feeAddress = _feeAddress;
     }
 
     // generate a new quest using random affinity
     function newQuest() public {
-        // TODO: Add cooldown of 1 quest every 4 hours or so
+        require(
+            lastQuestIssuedAt.add(COOLDOWN) < block.timestamp,
+            "Quest Cooldown not elapsed"
+        );
         Quest memory quest = Quest({
             id: questLog.length,
             accepted_by: address(0),
@@ -66,6 +78,7 @@ contract ForgottenQuests {
             expires_at: block.timestamp + baseExpairation
         });
         questLog.push(quest);
+        lastQuestIssuedAt = block.timestamp;
     }
 
     function acceptQuest(
@@ -73,7 +86,7 @@ contract ForgottenQuests {
         uint256 wizard,
         string memory story
     ) public {
-        require(wizards.ownerOf(wizard) == msg.sender, "Can not send wizard");
+        require(wizards.ownerOf(wizard) == msg.sender, "Not owner of wizard");
         wizards.transferFrom(msg.sender, address(this), wizard);
 
         Quest storage quest = questLog[id];
@@ -116,18 +129,20 @@ contract ForgottenQuests {
         uint256 duration = quest.ends_at - quest.accepted_at;
         rewardNFT.mint(
             msg.sender,
-            rewardNFT.totalSupply(),
-            quest.id,
+            quest.id, //rewardNFT.totalSupply(),
             quest.wizardId,
             quest.story,
-            quest.affinity,
+            quest.required_affinity,
             duration
         );
     }
 
     function abandonQuest(uint256 id) public {
         Quest storage quest = questLog[id];
-        require(quest.accepted_by == msg.sender, "Quest accepted already");
+        require(
+            quest.accepted_by == msg.sender,
+            "Quest not ecccpeted by msg.sender"
+        );
         require(quest.ends_at > block.timestamp, "Quest ended");
 
         // pay penalty fee based on how early iy is abondoned
@@ -141,10 +156,20 @@ contract ForgottenQuests {
         wizards.transferFrom(address(this), msg.sender, quest.wizardId);
     }
 
-    // TODO: use block.hash for better randomness then this....
     function getAffinity() public view returns (uint16) {
-        uint256 nr = block.number + block.basefee;
-        return uint16(nr % MAX_AFFINITY);
+        uint256 bigNr = uint256(
+            keccak256(
+                abi.encodePacked(
+                    blockhash(block.number.sub(1)),
+                    msg.sender,
+                    block.difficulty,
+                    questLog.length
+                )
+            )
+        );
+        //overflow can not happen here
+        uint16 aff = uint16(bigNr % MAX_AFFINITY);
+        return aff;
     }
 
     function getQuest(uint256 id) public view returns (Quest memory) {

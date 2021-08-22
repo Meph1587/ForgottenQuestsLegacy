@@ -1,0 +1,163 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_wizardStorage",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_wizard",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_rewardNFT",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_weth",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_feeAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "abandonQuest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wizard",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "story",
+        "type": "string"
+      }
+    ],
+    "name": "acceptQuest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "completeQuest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAffinity",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "getQuest",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "accepted_by",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "accepted_at",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "wizardId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint16",
+            "name": "required_affinity",
+            "type": "uint16"
+          },
+          {
+            "internalType": "string",
+            "name": "story",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "ends_at",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expires_at",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ForgottenQuests.Quest",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "newQuest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
