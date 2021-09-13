@@ -20,6 +20,8 @@ const defaultAccountRinkeby = {
     accountsBalance: "10000000000000000000000"
 }
 
+const rinkebyAccounts = ["6b2bb4b34cf7976b3fb46d0a5718c8b0a12e6507ce8bcbfb6feb7eee7235f874"];
+
 export const networks: NetworksUserConfig = {
     // Needed for `solidity-coverage`
     coverage: {
@@ -36,27 +38,28 @@ export const networks: NetworksUserConfig = {
     },
 
     rinkeby: {
+        accounts: rinkebyAccounts,
+        gas: 'auto',
+        hardfork: 'london', 
         url: process.env.RINEKBY_API,
-        accounts: defaultAccountRinkeby,
-        gas: 'auto'
     },
-
     hardhat: {
         accounts: defaultAccount,
         mining: {
             auto: true
         },
+        hardfork: 'london',
         forking: {
-            // I know, I know. Not a good practice to add tokens to git repos.
-            // For development, I don't care. :-)
-            url: process.env.MAINNET_API,
+            url: process.env.RINEKBY_API,
             enabled: (process.env.MAINNET_ALCHEMY_ENABLED) ? (process.env.MAINNET_ALCHEMY_ENABLED == "true") : false
         }
     },
+
+  
 };
 
 // Use to verify contracts on Etherscan
 // https://buidler.dev/plugins/nomiclabs-buidler-etherscan.html
 export const etherscan: EtherscanConfig = {
-    apiKey: '',
+    apiKey: process.env.ETHERSCAN_API_KEY,
 };

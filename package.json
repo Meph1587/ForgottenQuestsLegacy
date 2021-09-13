@@ -20,7 +20,11 @@
   "author": "Mephistopheles",
   "license": "Apache-2",
   "dependencies": {
-    "hardhat-contract-sizer": "^2.0.3"
+    "crypto-js": "^4.1.1",
+    "hardhat-contract-sizer": "^2.0.3",
+    "keccak256": "^1.0.3",
+    "merkletreejs": "^0.2.24",
+    "lost-grimoire": "https://github.com/aleb-user/LostGrimoire.git#master"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

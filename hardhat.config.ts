@@ -25,8 +25,8 @@ const cfg: HardhatUserConfig = {
         version: '0.8.7',
         settings: {
             optimizer: {
-                enabled: true,
-                runs: 200,
+                enabled: false,
+                runs: 300,
             },
         },
     },
