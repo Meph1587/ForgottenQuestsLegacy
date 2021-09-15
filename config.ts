@@ -51,7 +51,7 @@ export const networks: NetworksUserConfig = {
         hardfork: 'london',
         forking: {
             url: process.env.RINEKBY_API,
-            enabled: (process.env.MAINNET_ALCHEMY_ENABLED) ? (process.env.MAINNET_ALCHEMY_ENABLED == "true") : false
+            enabled: true
         }
     },
 
