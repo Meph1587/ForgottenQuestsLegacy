@@ -1,16 +1,10 @@
 import {DeployConfig} from "./define-0-deploy_config";
-import {Contract} from "ethers";
 import {deployContract, deployDiamond} from "../helpers/deploy"
-
-import {
-    LoudTavern,
-} from "../../typechain";
-
 
 
 export async function deployTavern(c: DeployConfig): Promise<DeployConfig> {
     
-    console.log(`\n --- DEPLOY REIGN DAO ---`);
+    console.log(`\n --- DEPLOY LOUD TAVERN ---`);
     
 
     ///////////////////////////
