@@ -9,10 +9,8 @@ import "lost-grimoire/contracts/Grimoire.sol";
 import "../libraries/LibOwnership.sol";
 import "../libraries/LibTavernStorage.sol";
 
-contract TavernTools {
+contract QuestTools {
     using SafeMath for uint256;
-
-    //receive() external payable {}
 
     // executed only once
     function initialize(
@@ -64,5 +62,57 @@ contract TavernTools {
         //overflow can not happen here
         uint16 aff = uint16(bigNr % 286);
         return aff;
+    }
+
+    function getQuestDuration(
+        uint256 wizardId,
+        uint16[2] memory pos_affinities,
+        uint16[2] memory neg_affinities
+    ) public view returns (uint256) {
+        require(
+            LibTavernStorage.tavernStorage().wizardStorage.hasTraitsStored(
+                wizardId
+            ),
+            "Wizard does not have traits stored"
+        );
+
+        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
+        uint16[] memory wizAffinities = ts.wizardStorage.getWizardAffinities(
+            wizardId
+        );
+
+        // count how many times selected wizard has affinity
+        uint256 affinityCountPositive = 0;
+        for (uint8 i = 0; i < wizAffinities.length; i++) {
+            if (
+                (wizAffinities[i] == pos_affinities[0]) ||
+                (wizAffinities[i] == pos_affinities[1])
+            ) {
+                affinityCountPositive += 1;
+            }
+        }
+
+        uint256 affinityCountNegative = 0;
+        for (uint8 i = 0; i < wizAffinities.length; i++) {
+            if (
+                (wizAffinities[i] == neg_affinities[0]) ||
+                (wizAffinities[i] == neg_affinities[1])
+            ) {
+                affinityCountNegative += 1;
+            }
+        }
+
+        require(
+            affinityCountPositive > 0,
+            "Wizard does not have required affinity"
+        );
+
+        // this is safe because affinityCount can not be greater then 5
+        // reduce duration by 2 days for every positive affinity
+        // increases duration by 2 days for every negative affinity
+        return
+            LibTavernStorage.BASE_DURATION -
+            (affinityCountPositive).mul(LibTavernStorage.TIME_ADJUSTMENT) +
+            (affinityCountNegative).mul(LibTavernStorage.TIME_ADJUSTMENT);
     }
 }

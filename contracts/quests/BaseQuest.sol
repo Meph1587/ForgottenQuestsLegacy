@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../WizardsMock.sol";
 import "../BaseQuestRewardNFT.sol";
-import "../TheLoudTavern/facets/TavernTools.sol";
+import "../TheLoudTavern/facets/QuestTools.sol";
 import "../TheLoudTavern/libraries/LibTavernStorage.sol";
 
 contract BaseQuest {
@@ -21,16 +21,15 @@ contract BaseQuest {
         uint256 wizardId;
         uint16[2] positive_affinities;
         uint16[2] negative_affinities;
-        string lore;
         uint256 ends_at;
         uint256 expires_at;
     }
 
     Quest[] private questLog;
 
-    BaseQuestRewardNFT baseQuestRewardNFT;
+    QuestTools private qt;
 
-    //TavernTools tavernTools;
+    BaseQuestRewardNFT private baseQuestRewardNFT;
 
     address public baseQuestFeeAddress;
 
@@ -40,16 +39,7 @@ contract BaseQuest {
         baseQuestFeeAddress = _baseQuestFeeAddress;
         baseQuestRewardNFT = BaseQuestRewardNFT(_baseQuestRewardNFT);
         nextBaseQuestAvailableAt = block.timestamp;
-    }
-
-    function initialise() public {
-        /*
-        require(
-            address(tavernTools) == address(0),
-            "BaseQuest: Already Initialised"
-        );
-        */
-        //tavernTools = TavernTools(address(this));
+        qt = QuestTools(address(this));
     }
 
     // generate a new quest using random affinity
@@ -60,13 +50,13 @@ contract BaseQuest {
         );
         uint256 nonce = questLog.length.mul(4);
         uint16[2] memory pos_aff = [
-            TavernTools(address(this)).getRandomAffinity(nonce),
-            TavernTools(address(this)).getRandomAffinity(nonce.add(1))
+            qt.getRandomAffinity(nonce),
+            qt.getRandomAffinity(nonce.add(1))
         ];
 
         uint16[2] memory neg_aff = [
-            TavernTools(address(this)).getRandomAffinity(nonce.add(2)),
-            TavernTools(address(this)).getRandomAffinity(nonce.add(3))
+            qt.getRandomAffinity(nonce.add(2)),
+            qt.getRandomAffinity(nonce.add(3))
         ];
         Quest memory quest = Quest({
             id: questLog.length,
@@ -75,7 +65,6 @@ contract BaseQuest {
             wizardId: 10000,
             positive_affinities: pos_aff,
             negative_affinities: neg_aff,
-            lore: "",
             ends_at: 0,
             expires_at: block.timestamp + LibTavernStorage.BASE_EXPIRATION
         });
@@ -103,10 +92,14 @@ contract BaseQuest {
         require(quest.expires_at > block.timestamp, "Quest expired");
         quest.accepted_by = msg.sender;
         quest.accepted_at = block.timestamp;
-        quest.lore = lore;
         quest.wizardId = wizardId;
 
-        uint256 duration = getBaseQuestDuration(quest.id, wizardId);
+        // reverts if wizard is not verified
+        uint256 duration = qt.getQuestDuration(
+            wizardId,
+            quest.positive_affinities,
+            quest.negative_affinities
+        );
         quest.ends_at = block.timestamp.add(duration);
     }
 
@@ -119,15 +112,25 @@ contract BaseQuest {
         ts.wizards.approve(msg.sender, quest.wizardId);
         ts.wizards.transferFrom(address(this), msg.sender, quest.wizardId);
 
+        uint256 score = uint256(100000).div(
+            uint256(
+                ts.wizardStorage.getAffinityOccurrences(
+                    quest.positive_affinities[0]
+                )
+            ).add(
+                    ts.wizardStorage.getAffinityOccurrences(
+                        quest.positive_affinities[1]
+                    )
+                )
+        );
         //mint reward NFT to user
         uint256 duration = quest.ends_at - quest.accepted_at;
 
         baseQuestRewardNFT.mint(
             msg.sender,
             quest.id, //rewardNFT.totalSupply(),
-            quest.wizardId,
-            quest.lore,
-            quest.positive_affinities,
+            ts.wizardStorage.getWizardName(quest.wizardId),
+            score,
             duration
         );
     }
@@ -159,51 +162,5 @@ contract BaseQuest {
 
     function getNrOfBaseQuests() public view returns (uint256) {
         return questLog.length;
-    }
-
-    function getBaseQuestDuration(uint256 id, uint256 wizardId)
-        public
-        view
-        returns (uint256)
-    {
-        Quest storage quest = questLog[id];
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
-        uint16[] memory wizAffinities = ts.wizardStorage.getWizardAffinities(
-            wizardId
-        );
-
-        // count how many times selected wizard has affinity
-        uint256 affinityCountPositive = 0;
-        for (uint8 i = 0; i < wizAffinities.length; i++) {
-            if (
-                (wizAffinities[i] == quest.positive_affinities[0]) ||
-                (wizAffinities[i] == quest.positive_affinities[1])
-            ) {
-                affinityCountPositive += 1;
-            }
-        }
-
-        uint256 affinityCountNegative = 0;
-        for (uint8 i = 0; i < wizAffinities.length; i++) {
-            if (
-                (wizAffinities[i] == quest.negative_affinities[0]) ||
-                (wizAffinities[i] == quest.negative_affinities[1])
-            ) {
-                affinityCountNegative += 1;
-            }
-        }
-
-        require(
-            affinityCountPositive > 0,
-            "Wizard does not have required affinity"
-        );
-
-        // this is safe because affinityCount can not be greater then 5
-        // reduce duration by 2 days for every positive affinity
-        // increases duration by 2 days for every negative affinity
-        return
-            LibTavernStorage.BASE_DURATION -
-            (affinityCountPositive).mul(LibTavernStorage.TIME_ADJUSTMENT) +
-            (affinityCountNegative).mul(LibTavernStorage.TIME_ADJUSTMENT);
     }
 }
