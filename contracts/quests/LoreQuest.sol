@@ -10,7 +10,7 @@ import "../BaseQuestRewardNFT.sol";
 import "../TheLoudTavern/facets/QuestTools.sol";
 import "../TheLoudTavern/libraries/LibTavernStorage.sol";
 
-contract CustomQuest {
+contract LoreQuest {
     using SafeMath for uint16;
     using SafeMath for uint256;
 
@@ -36,6 +36,7 @@ contract CustomQuest {
         uint256 nftId;
         uint256 entryFee;
         address creator;
+        uint16[5] traits;
     }
     Quest[] private questLog;
 
@@ -44,10 +45,10 @@ contract CustomQuest {
     mapping(address => bool) canMakeQuest;
     address public questMaster;
 
-    address public customQuestFeeAddress;
+    address public loreQuestFeeAddress;
 
-    constructor(address _customQuestFeeAddress) {
-        customQuestFeeAddress = _customQuestFeeAddress;
+    constructor(address _loreQuestFeeAddress) {
+        loreQuestFeeAddress = _loreQuestFeeAddress;
         questMaster = msg.sender;
         canMakeQuest[msg.sender] = true;
         qt = QuestTools(address(this));
@@ -59,16 +60,17 @@ contract CustomQuest {
     }
 
     // generate a new quest using random affinity
-    function newCustomQuest(
+    function newLoreQuest(
         address _rewardNFT,
         uint256 _nftId,
-        uint256 _entryFee
+        uint256 _entryFee,
+        uint16[5] calldata requiredTraits
     ) public {
-        require(canMakeQuest[msg.sender], "Not allowed to make custom quests");
+        require(canMakeQuest[msg.sender], "Not allowed to make Lore quests");
 
         uint256 nonce = questLog.length.mul(4);
         uint16[2] memory pos_aff = [
-            qt.getRandomAffinity(nonce),
+            qt.getRandomAffinityFromTraits(nonce, requiredTraits),
             qt.getRandomAffinity(nonce.add(1))
         ];
 
@@ -89,13 +91,14 @@ contract CustomQuest {
             rewardNFT: _rewardNFT,
             nftId: _nftId,
             entryFee: _entryFee,
-            creator: msg.sender
+            creator: msg.sender,
+            traits: requiredTraits
         });
         questLog.push(quest);
         ERC721(_rewardNFT).transferFrom(msg.sender, address(this), _nftId);
     }
 
-    function acceptCustomQuest(
+    function acceptLoreQuest(
         uint256 id,
         uint256 wizardId,
         string memory lore
@@ -108,9 +111,10 @@ contract CustomQuest {
         }
 
         require(
-            ts.wizards.ownerOf(wizardId) == msg.sender,
-            "Not owner of wizard"
+            qt.wizardHasOneOfTraits(wizardId, quest.traits),
+            "Wizard does not have trait"
         );
+
         ts.wizards.transferFrom(msg.sender, address(this), wizardId);
 
         require(quest.accepted_by == address(0), "Quest accepted already");
@@ -130,7 +134,7 @@ contract CustomQuest {
     }
 
     // allow to withdraw wizard after quest duration elapsed
-    function completeCustomQuest(uint256 id) public {
+    function completeLoreQuest(uint256 id) public {
         Quest storage quest = questLog[id];
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
         require(quest.accepted_by == msg.sender, "Quest accepted already");
@@ -146,7 +150,7 @@ contract CustomQuest {
         );
     }
 
-    function abandonCustomQuest(uint256 id) public {
+    function abandonLoreQuest(uint256 id) public {
         Quest storage quest = questLog[id];
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
         require(
@@ -161,17 +165,17 @@ contract CustomQuest {
             .mul(block.timestamp - quest.accepted_at)
             .div(quest.ends_at - quest.accepted_at);
 
-        ts.weth.transferFrom(msg.sender, customQuestFeeAddress, feeAmount);
+        ts.weth.transferFrom(msg.sender, loreQuestFeeAddress, feeAmount);
 
         ts.wizards.approve(msg.sender, quest.wizardId);
         ts.wizards.transferFrom(address(this), msg.sender, quest.wizardId);
     }
 
-    function getCustomQuest(uint256 id) public view returns (Quest memory) {
+    function getLoreQuest(uint256 id) public view returns (Quest memory) {
         return questLog[id];
     }
 
-    function getNrOfCustomQuests() public view returns (uint256) {
+    function getNrOfLoreQuests() public view returns (uint256) {
         return questLog.length;
     }
 }

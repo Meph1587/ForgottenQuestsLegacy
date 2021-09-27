@@ -24,9 +24,10 @@
     "crypto-js": "^4.1.1",
     "hardhat-contract-sizer": "^2.0.3",
     "keccak256": "^1.0.3",
-    "merkletreejs": "^0.2.24",
     "lost-grimoire": "https://github.com/aleb-user/LostGrimoire.git#master",
-    "stringsutils": "https://github.com/Arachnid/solidity-stringutils.git#master"
+    "merkletreejs": "^0.2.24",
+    "stringsutils": "https://github.com/Arachnid/solidity-stringutils.git#master",
+    "update": "^0.7.4"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

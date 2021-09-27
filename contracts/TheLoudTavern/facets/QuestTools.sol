@@ -48,11 +48,36 @@ contract QuestTools {
         return aff;
     }
 
-    function getRandomTrait(uint256 _nonce) public view returns (uint16) {
+    function getRandomAffinityFromTraits(
+        uint256 nonce,
+        uint16[5] memory traitIds
+    ) public view returns (uint16) {
+        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
+
+        uint16[] calldata affinities = ts.wizardStorage.getAllTraitsAffinities(
+            traitIds
+        );
+
         uint256 bigNr = uint256(
             keccak256(
                 abi.encodePacked(
-                    _nonce,
+                    blockhash(block.number.sub(1)),
+                    tx.origin,
+                    nonce,
+                    block.difficulty
+                )
+            )
+        );
+        //overflow can not happen here
+        uint16 aff = uint16(bigNr % affinities.length);
+        return affinities[aff];
+    }
+
+    function getRandomTrait(uint256 nonce) public view returns (uint16) {
+        uint256 bigNr = uint256(
+            keccak256(
+                abi.encodePacked(
+                    nonce,
                     tx.origin,
                     block.difficulty,
                     blockhash(block.number.sub(1))
@@ -64,19 +89,34 @@ contract QuestTools {
         return aff;
     }
 
+    function wizardHasOneOfTraits(uint256 wizardId, uint16[] memory traitIds)
+        public
+        view
+        returns (bool)
+    {
+        LibTavernStorage.Storage storage ws = LibTavernStorage
+            .tavernStorage()
+            .wizardStorage;
+        for (uint8 i = 0; i < traitIds.length; i++) {
+            if (ws.wizardHasTrait(wizardId, i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function getQuestDuration(
         uint256 wizardId,
         uint16[2] memory pos_affinities,
         uint16[2] memory neg_affinities
     ) public view returns (uint256) {
+        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
+
         require(
-            LibTavernStorage.tavernStorage().wizardStorage.hasTraitsStored(
-                wizardId
-            ),
+            ts.wizardStorage.hasTraitsStored(wizardId),
             "Wizard does not have traits stored"
         );
 
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
         uint16[] memory wizAffinities = ts.wizardStorage.getWizardAffinities(
             wizardId
         );
