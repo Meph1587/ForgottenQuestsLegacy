@@ -39,14 +39,14 @@ But if the wizard would have very little alignment to the positive affinities an
 
 ## Base Quest Rewards
 
-Of course no wizard goes on quests for free. The rewards for ‘BaseQuests’ are ‘WizardTrophies’. These are ERC1155 tokens with three categories “Gold, Silver, Bronze”. These tokens are minted on completion of the quests depending on the difficulty of the quest. The difficulty is determined by using the rarity of the positive an negative affinities of the quest. A quest that has two very rare positive affinities is more difficult as very few wizards can complete it in reasonable time. Such a quest will have a Gold trophy as reward - a quest with very common affinities will be easier as many wizards can take it and will therefore give a Bronze trophy.  
-The scarcity of these trophies is solely determined by the amount of new quests (ca 876 per year) and the willingness of wizard holders to lock their wizards up.
+Of course no wizard goes on quests for free. The rewards for ‘BaseQuests’ are ‘Achievements’. These are ERC721 tokens that are minted on completion of the quests and contain information about the quest and the wizard completing it. The quest difficulty is determined by using the rarity of the positive an negative affinities of the quest. The difficulty of the quest will be added in the achievement token.
+The scarcity of these achievements is solely determined by the amount of new quests (ca 876 per year) and the willingness of wizard holders to lock their wizards up. And while they have no utility per-se they can be added to the book of lore of wizards to tell of their past adventures.
 
 ## Lore Quests
 
 Lore Quests are an expansion of the base quests. They have the same 4 affinity mechanism to determine the duration of the lockup.  
 They differ from base Quests because they can only be created by whitelisted “QuestMasters” and there can only be 1 new Lore Quest every 3 days.  
-The QuestMasters creating the Quests needs to write a basic lore for the quest and can choose an NFT held by them to be set as Reward for the quest. This NFT will be stored in the quest contract until a wizard completes the quest and receivers it as reward. If no wizard takes the quest the NFT before the expiration time it can be withdrawn by the quest creator.  
+The QuestMasters creating the Quests needs to write a basic lore for the quest and can choose an NFT held by them to be set as Reward for the quest. This NFT will be stored in the quest contract until a wizard completes the quest and receivers it as reward. If no wizard takes the quest the NFT before the expiration time it can be withdrawn by the quest creator. A Special BaseQuest Achievement will be rewarded to the user as well containing the lore written by the QuestMaster.
 QuestMaster can set a price for the quest in WETH this price needs to be paid by the wizard holder when taking the quest and is directly sent to the quest creator. This mechanism allows Lore Quests to be used by Artists and other creators to sell their NFTs to Wizard holders in a more fun way.  
 There is also the option so set some required traits for the quests to allow for example to have kobold specific art and lore that can only be received by sending kobolds to the quest. If this is done, at least 1 of the 2 positive affinities will be related to at least one of the required traits to avoid a situation where no wizard could take the quest.
 
