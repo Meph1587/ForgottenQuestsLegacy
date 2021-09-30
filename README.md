@@ -53,7 +53,7 @@ There is also the option so set some required traits for the quests to allow for
 ## Team Base Quest
 
 Team quests will require multiple wizards to come together to solve the quest.  
-There will be only 1 team quest that can be generated per week. The team quest can take 3-5 wizards and there are 8 positive and 8 negative affinities for the quest. The duration of the lock is computed based on the combined alignments of all participating wizards and all wizards are locked for the duration. It is therefore of interest to assemble a team of highly aligned and complementary wizards. The rewards for the Team Based Quests will also be WizardTrophies and each participating wizard will receive one. The rarity of the trophy will be determined by the combined rarity of the quest affinities. This will potentially create up to 260 additional trophies per year.  
+There will be only 1 team quest that can be generated per week. The team quest can take 3-5 wizards and there are 8 positive and 8 negative affinities for the quest. The duration of the lock is computed based on the combined alignments of all participating wizards and all wizards are locked for the duration. It is therefore of interest to assemble a team of highly aligned and complementary wizards. The rewards for the Team Based Quests will also be Achievements and each participating wizard will receive one. The difficulty set will be determined by the combined rarity of the quest affinities. This will potentially create up to 260 additional trophies per year.  
 If some wizards join the party for the team quest but not enough others join the wizards can be withdrawn after the expiration time of the quest.
 
 ## Other quest ideas
