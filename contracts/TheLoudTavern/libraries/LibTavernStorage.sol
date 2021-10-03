@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "lost-grimoire/contracts/Grimoire.sol";
+import "wizard-storage/contracts/Grimoire.sol";
 
 library LibTavernStorage {
     bytes32 constant STORAGE_POSITION = keccak256("abrahadabra");

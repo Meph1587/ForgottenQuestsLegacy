@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "lost-grimoire/contracts/Grimoire.sol";
+import "wizard-storage/contracts/Grimoire.sol";
 import "../libraries/LibOwnership.sol";
 import "../libraries/LibTavernStorage.sol";
 
@@ -54,7 +54,7 @@ contract QuestTools {
     ) public view returns (uint16) {
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
 
-        uint16[] calldata affinities = ts.wizardStorage.getAllTraitsAffinities(
+        uint16[] memory affinities = ts.wizardStorage.getAllTraitsAffinities(
             traitIds
         );
 
@@ -89,20 +89,48 @@ contract QuestTools {
         return aff;
     }
 
-    function wizardHasOneOfTraits(uint256 wizardId, uint16[] memory traitIds)
+    function wizardHasOneOfTraits(uint256 wizardId, uint16[5] memory traitIds)
         public
         view
         returns (bool)
     {
-        LibTavernStorage.Storage storage ws = LibTavernStorage
-            .tavernStorage()
-            .wizardStorage;
+        Grimoire ws = LibTavernStorage.tavernStorage().wizardStorage;
         for (uint8 i = 0; i < traitIds.length; i++) {
             if (ws.wizardHasTrait(wizardId, i)) {
                 return true;
             }
         }
         return false;
+    }
+
+    function getQuestScore(
+        uint16[2] memory positiveAffinities,
+        uint16[2] memory negativeAffinities
+    ) public view returns (uint256) {
+        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
+        uint256 scorePositive = uint256(100000).div(
+            uint256(
+                ts.wizardStorage.getAffinityOccurrences(positiveAffinities[0])
+            ).add(
+                    ts.wizardStorage.getAffinityOccurrences(
+                        positiveAffinities[1]
+                    )
+                )
+        );
+
+        uint256 scoreNegative = uint256(100000).div(
+            uint256(
+                ts.wizardStorage.getAffinityOccurrences(negativeAffinities[0])
+            ).add(
+                    ts.wizardStorage.getAffinityOccurrences(
+                        negativeAffinities[1]
+                    )
+                )
+        );
+
+        uint256 score = 12486 + scorePositive - scoreNegative;
+
+        return score;
     }
 
     function getQuestDuration(

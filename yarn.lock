@@ -8253,18 +8253,6 @@ loose-envify@^1.0.0:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
-"lost-grimoire@https://github.com/aleb-user/LostGrimoire.git#master":
-  version "1.0.0"
-  resolved "https://github.com/aleb-user/LostGrimoire.git#85ce9c11544e77ab2edd2bbaa8bdb8cb7fecddca"
-  dependencies:
-    bson "^4.4.0"
-    crypto-js "^4.1.1"
-    hardhat-contract-sizer "^2.0.3"
-    keccak256 "^1.0.3"
-    merkletreejs "^0.2.24"
-    ora "^5.3.0"
-    parse-numeric-range "^1.2.0"
-
 lower-case@^1.1.1:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/lower-case/-/lower-case-1.1.4.tgz#9a2cabd1b9e8e0ae993a4bf7d5875c39c42e8eac"
@@ -13045,6 +13033,18 @@ window-size@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.2.0.tgz#b4315bb4214a3d7058ebeee892e13fa24d98b075"
   integrity sha1-tDFbtCFKPXBY6+7okuE/ok2YsHU=
+
+"wizard-storage@https://github.com/aleb-user/LostGrimoire.git#master":
+  version "1.0.0"
+  resolved "https://github.com/aleb-user/LostGrimoire.git#3c929e64c38c8607afd61a7cfe4f5dc737cde9ee"
+  dependencies:
+    bson "^4.4.0"
+    crypto-js "^4.1.1"
+    hardhat-contract-sizer "^2.0.3"
+    keccak256 "^1.0.3"
+    merkletreejs "^0.2.24"
+    ora "^5.3.0"
+    parse-numeric-range "^1.2.0"
 
 word-wrap@~1.2.3:
   version "1.2.3"

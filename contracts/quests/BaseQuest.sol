@@ -112,19 +112,13 @@ contract BaseQuest {
         ts.wizards.approve(msg.sender, quest.wizardId);
         ts.wizards.transferFrom(address(this), msg.sender, quest.wizardId);
 
-        uint256 score = uint256(100000).div(
-            uint256(
-                ts.wizardStorage.getAffinityOccurrences(
-                    quest.positive_affinities[0]
-                )
-            ).add(
-                    ts.wizardStorage.getAffinityOccurrences(
-                        quest.positive_affinities[1]
-                    )
-                )
-        );
         //mint reward NFT to user
         uint256 duration = quest.ends_at - quest.accepted_at;
+
+        uint256 score = qt.getQuestScore(
+            quest.positive_affinities,
+            quest.negative_affinities
+        );
 
         baseQuestRewardNFT.mint(
             msg.sender,
