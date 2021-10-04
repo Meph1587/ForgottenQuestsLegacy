@@ -2,11 +2,10 @@
 pragma solidity 0.8.7;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./libraries/stringsutils.sol";
 
-contract BaseQuestRewardNFT is ERC721Enumerable, ReentrancyGuard, Ownable {
+contract BaseQuestRewardNFT is ERC721Enumerable, Ownable {
     using stringsutils for string;
 
     string[] private locations = [
@@ -70,7 +69,7 @@ contract BaseQuestRewardNFT is ERC721Enumerable, ReentrancyGuard, Ownable {
         "An Escape with ",
         "An Escape from ",
         "A Delivery for ",
-        "A Delivery from",
+        "A Delivery from ",
         "A Hunt for ",
         "A Hunt with ",
         "A Following of ",
@@ -326,54 +325,7 @@ contract BaseQuestRewardNFT is ERC721Enumerable, ReentrancyGuard, Ownable {
 
     mapping(uint256 => TokenData) tokenData;
 
-    function _toString(uint256 value) internal pure returns (string memory) {
-        // Inspired by OraclizeAPI's implementation - MIT license
-        // https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
-
-        if (value == 0) {
-            return "0";
-        }
-        uint256 temp = value;
-        uint256 digits;
-        while (temp != 0) {
-            digits++;
-            temp /= 10;
-        }
-        bytes memory buffer = new bytes(digits);
-        while (value != 0) {
-            digits -= 1;
-            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
-            value /= 10;
-        }
-        return string(buffer);
-    }
-
-    function random(string memory input) internal pure returns (uint256) {
-        return uint256(keccak256(abi.encodePacked(input)));
-    }
-
-    function getName(uint256 tokenId) public view returns (string memory) {
-        string[3] memory parts;
-        parts[0] = pluck(tokenId, actions);
-        parts[1] = pluck(tokenId, names);
-        parts[2] = pluck(tokenId, locations);
-
-        string memory output = string(
-            abi.encodePacked(parts[0], parts[1], parts[2])
-        );
-        return output;
-    }
-
-    function pluck(uint256 tokenId, string[] memory sourceArray)
-        internal
-        pure
-        returns (string memory)
-    {
-        uint256 rand = random(_toString(tokenId));
-        string memory output = sourceArray[rand % sourceArray.length];
-
-        return output;
-    }
+    constructor() ERC721("WizardTrophies", "TROPHY") Ownable() {}
 
     function tokenURI(uint256 tokenId)
         public
@@ -389,17 +341,17 @@ contract BaseQuestRewardNFT is ERC721Enumerable, ReentrancyGuard, Ownable {
         ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 500 500"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base"> Quest Name: ';
 
         parts[1] = getName(tokenId);
-        if (token.score > 32570) {
+        if (token.score > 1514) {
             parts[
                 2
             ] = '</text><style>.diff {fill: orange}</style><text x="10" y="40" class="diff"> ';
             parts[3] = "Legendary";
-        } else if (token.score > 26016) {
+        } else if (token.score > 601) {
             parts[
                 2
             ] = '</text><style>.diff {fill: purple}</style><text x="10" y="40" class="diff"> ';
             parts[3] = "Epic";
-        } else if (token.score > 24362) {
+        } else if (token.score > 179) {
             parts[
                 2
             ] = '</text><style>.diff {fill: blue}</style><text x="10" y="40" class="diff"> ';
@@ -411,19 +363,19 @@ contract BaseQuestRewardNFT is ERC721Enumerable, ReentrancyGuard, Ownable {
             parts[3] = "Easy";
         }
 
-        parts[2] = '</text><text x="10" y="60" class="base"> Wizard: ';
+        parts[4] = '</text><text x="10" y="60" class="base"> Wizard: ';
 
-        parts[3] = token.wizard;
+        parts[5] = token.wizard;
 
         parts[6] = '</text><text x="10" y="80" class="base"> Score: ';
 
-        parts[7] = _toString(token.score);
+        parts[7] = toString(token.score);
 
         parts[8] = '</text><text x="10" y="100" class="base"> Duration: ';
 
-        parts[9] = _toString(token.duration);
+        parts[9] = toString(token.duration / 86400);
 
-        parts[10] = "</text></svg>";
+        parts[10] = " days </text></svg>";
 
         string memory output = string(
             abi.encodePacked(
@@ -435,7 +387,9 @@ contract BaseQuestRewardNFT is ERC721Enumerable, ReentrancyGuard, Ownable {
                 parts[5],
                 parts[6],
                 parts[7],
-                parts[8]
+                parts[8],
+                parts[9],
+                parts[10]
             )
         );
 
@@ -465,7 +419,7 @@ contract BaseQuestRewardNFT is ERC721Enumerable, ReentrancyGuard, Ownable {
         string memory wizard,
         uint256 score,
         uint256 duration
-    ) public nonReentrant {
+    ) public {
         tokenData[questId] = TokenData({
             wizard: wizard,
             score: score,
@@ -474,7 +428,54 @@ contract BaseQuestRewardNFT is ERC721Enumerable, ReentrancyGuard, Ownable {
         _safeMint(to, questId);
     }
 
-    constructor() ERC721("WizardTrophies", "TROPHY") Ownable() {}
+    function toString(uint256 value) internal pure returns (string memory) {
+        // Inspired by OraclizeAPI's implementation - MIT license
+        // https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
+
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
+    }
+
+    function random(string memory input) internal pure returns (uint256) {
+        return uint256(keccak256(abi.encodePacked(input)));
+    }
+
+    function getName(uint256 tokenId) internal view returns (string memory) {
+        string[3] memory parts;
+        parts[0] = pluck(tokenId, actions);
+        parts[1] = pluck(tokenId, names);
+        parts[2] = pluck(tokenId, locations);
+
+        string memory output = string(
+            abi.encodePacked(parts[0], parts[1], parts[2])
+        );
+        return output;
+    }
+
+    function pluck(uint256 tokenId, string[] memory sourceArray)
+        internal
+        pure
+        returns (string memory)
+    {
+        uint256 rand = random(toString(tokenId));
+        string memory output = sourceArray[rand % sourceArray.length];
+
+        return output;
+    }
 }
 
 /// [MIT License]

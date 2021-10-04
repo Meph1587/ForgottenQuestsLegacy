@@ -115,20 +115,22 @@ contract QuestTools {
                     ts.wizardStorage.getAffinityOccurrences(
                         positiveAffinities[1]
                     )
-                )
+                
+            )
         );
 
-        uint256 scoreNegative = uint256(100000).div(
+       uint256 scoreNegative = uint256(100000).div(
             uint256(
                 ts.wizardStorage.getAffinityOccurrences(negativeAffinities[0])
             ).add(
                     ts.wizardStorage.getAffinityOccurrences(
                         negativeAffinities[1]
                     )
-                )
+                
+            )
         );
 
-        uint256 score = 12486 + scorePositive - scoreNegative;
+        uint256 score = sqrt(scorePositive.mul(uint256(100000).div(scoreNegative)));
 
         return score;
     }
@@ -182,5 +184,19 @@ contract QuestTools {
             LibTavernStorage.BASE_DURATION -
             (affinityCountPositive).mul(LibTavernStorage.TIME_ADJUSTMENT) +
             (affinityCountNegative).mul(LibTavernStorage.TIME_ADJUSTMENT);
+    }
+
+     // babylonian method (https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method)
+    function sqrt(uint y) public pure returns (uint z) {
+        if (y > 3) {
+            z = y;
+            uint x = y / 2 + 1;
+            while (x < z) {
+                z = x;
+                x = (y / x + x) / 2;
+            }
+        } else if (y != 0) {
+            z = 1;
+        }
     }
 }
