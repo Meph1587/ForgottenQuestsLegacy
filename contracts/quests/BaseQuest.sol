@@ -5,10 +5,9 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../WizardsMock.sol";
-import "../BaseQuestRewardNFT.sol";
-import "../TheLoudTavern/facets/QuestTools.sol";
-import "../TheLoudTavern/libraries/LibTavernStorage.sol";
+import "../QuestAchievements.sol";
+import "../TheTavern/facets/QuestTools.sol";
+import "../TheTavern/libraries/LibTavernStorage.sol";
 
 contract BaseQuest {
     using SafeMath for uint16;
@@ -29,15 +28,15 @@ contract BaseQuest {
 
     QuestTools private qt;
 
-    BaseQuestRewardNFT private baseQuestRewardNFT;
+    QuestAchievements private questAchievements;
 
     address public baseQuestFeeAddress;
 
     uint256 public nextBaseQuestAvailableAt;
 
-    constructor(address _baseQuestFeeAddress, address _baseQuestRewardNFT) {
+    constructor(address _baseQuestFeeAddress, address _questAchievements) {
         baseQuestFeeAddress = _baseQuestFeeAddress;
-        baseQuestRewardNFT = BaseQuestRewardNFT(_baseQuestRewardNFT);
+        questAchievements = QuestAchievements(_questAchievements);
         nextBaseQuestAvailableAt = block.timestamp;
         qt = QuestTools(address(this));
     }
@@ -74,11 +73,7 @@ contract BaseQuest {
         );
     }
 
-    function acceptBaseQuest(
-        uint256 id,
-        uint256 wizardId,
-        string memory lore
-    ) public {
+    function acceptBaseQuest(uint256 id, uint256 wizardId) public {
         Quest storage quest = questLog[id];
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
 
@@ -120,7 +115,7 @@ contract BaseQuest {
             quest.negative_affinities
         );
 
-        baseQuestRewardNFT.mint(
+        questAchievements.mint(
             msg.sender,
             quest.id, //rewardNFT.totalSupply(),
             ts.wizardStorage.getWizardName(quest.wizardId),

@@ -5,10 +5,9 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../WizardsMock.sol";
-import "../BaseQuestRewardNFT.sol";
-import "../TheLoudTavern/facets/QuestTools.sol";
-import "../TheLoudTavern/libraries/LibTavernStorage.sol";
+import "../QuestAchievements.sol";
+import "../TheTavern/facets/QuestTools.sol";
+import "../TheTavern/libraries/LibTavernStorage.sol";
 
 contract LoreQuest {
     using SafeMath for uint16;
@@ -29,7 +28,7 @@ contract LoreQuest {
         uint256 wizardId;
         uint16[2] positive_affinities;
         uint16[2] negative_affinities;
-        string lore;
+        string name;
         uint256 ends_at;
         uint256 expires_at;
         address rewardNFT;
@@ -40,6 +39,8 @@ contract LoreQuest {
     }
     Quest[] private questLog;
 
+    QuestAchievements private questAchievements;
+
     QuestTools private qt;
 
     mapping(address => bool) canMakeQuest;
@@ -47,8 +48,9 @@ contract LoreQuest {
 
     address public loreQuestFeeAddress;
 
-    constructor(address _loreQuestFeeAddress) {
+    constructor(address _loreQuestFeeAddress, address _questAchievements) {
         loreQuestFeeAddress = _loreQuestFeeAddress;
+        questAchievements = QuestAchievements(_questAchievements);
         questMaster = msg.sender;
         canMakeQuest[msg.sender] = true;
         qt = QuestTools(address(this));
@@ -61,6 +63,7 @@ contract LoreQuest {
 
     // generate a new quest using random affinity
     function newLoreQuest(
+        string calldata _name,
         address _rewardNFT,
         uint256 _nftId,
         uint256 _entryFee,
@@ -85,7 +88,7 @@ contract LoreQuest {
             wizardId: 10000,
             positive_affinities: pos_aff,
             negative_affinities: neg_aff,
-            lore: "",
+            name: _name,
             ends_at: 0,
             expires_at: block.timestamp + LibTavernStorage.BASE_EXPIRATION,
             rewardNFT: _rewardNFT,
@@ -98,11 +101,7 @@ contract LoreQuest {
         ERC721(_rewardNFT).transferFrom(msg.sender, address(this), _nftId);
     }
 
-    function acceptLoreQuest(
-        uint256 id,
-        uint256 wizardId,
-        string memory lore
-    ) public {
+    function acceptLoreQuest(uint256 id, uint256 wizardId) public {
         Quest storage quest = questLog[id];
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
 
@@ -121,7 +120,6 @@ contract LoreQuest {
         require(quest.expires_at > block.timestamp, "Quest expired");
         quest.accepted_by = msg.sender;
         quest.accepted_at = block.timestamp;
-        quest.lore = lore;
         quest.wizardId = wizardId;
 
         // reverts if wizard is not verified
@@ -147,6 +145,23 @@ contract LoreQuest {
             address(this),
             msg.sender,
             quest.nftId
+        );
+
+        //mint reward NFT to user
+        uint256 duration = quest.ends_at - quest.accepted_at;
+
+        uint256 score = qt.getQuestScore(
+            quest.positive_affinities,
+            quest.negative_affinities
+        );
+
+        questAchievements.mintWithName(
+            quest.name,
+            msg.sender,
+            quest.id, //rewardNFT.totalSupply(),
+            ts.wizardStorage.getWizardName(quest.wizardId),
+            score,
+            duration
         );
     }
 

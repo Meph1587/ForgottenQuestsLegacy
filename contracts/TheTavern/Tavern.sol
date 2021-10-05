@@ -8,7 +8,7 @@ import "./interfaces/IDiamondLoupe.sol";
 import "./interfaces/IERC165.sol";
 import "./interfaces/IERC173.sol";
 
-contract LoudTavern {
+contract Tavern {
     constructor(IDiamondCut.FacetCut[] memory _diamondCut, address _owner)
         payable
     {

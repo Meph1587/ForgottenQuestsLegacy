@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./libraries/stringsutils.sol";
 
-contract BaseQuestRewardNFT is ERC721Enumerable, Ownable {
+contract QuestAchievements is ERC721Enumerable, Ownable {
     using stringsutils for string;
 
     string[] private locations = [
@@ -53,33 +53,39 @@ contract BaseQuestRewardNFT is ERC721Enumerable, Ownable {
     ];
 
     string[] private actions = [
-        "A Rescue of ",
+        "The Rescue of ",
         "A Rescue for ",
         "A Discovery for ",
         "A Battle with ",
         "A Battle for ",
-        "An Unveiling from ",
         "An Intreague with ",
-        "A Betreyal of ",
-        "A Betreyal for ",
+        "The Betreyal of ",
         "An Arrangement with ",
         "An Arrangement for ",
-        "An Arrangement against ",
-        "An Assault against ",
-        "An Escape with ",
-        "An Escape from ",
+        "The Assault against ",
+        "The Escape with ",
+        "The Escape from ",
         "A Delivery for ",
         "A Delivery from ",
         "A Hunt for ",
         "A Hunt with ",
-        "A Following of ",
+        "The Hunt of ",
         "A Negotiation with ",
-        "A Negotiation for ",
-        "A Negotiation againts ",
-        "An Observation of ",
-        "An Observation for ",
+        "An Analysis for ",
         "A Distraction of ",
-        "A Distraction for "
+        "The Protection of ",
+        "A Purchase from ",
+        "A Purchase for ",
+        "A Theft for ",
+        "A Theft from ",
+        "A Blackmail of ",
+        "A Blackmail for ",
+        "The Murder of ",
+        "A Murder for ",
+        "To The Aid of ",
+        "The Saving of ",
+        "An Espionage of ",
+        "An Espionage for "
     ];
 
     string[] private names = [
@@ -321,6 +327,7 @@ contract BaseQuestRewardNFT is ERC721Enumerable, Ownable {
         string wizard;
         uint256 score;
         uint256 duration;
+        string name;
     }
 
     mapping(uint256 => TokenData) tokenData;
@@ -340,7 +347,7 @@ contract BaseQuestRewardNFT is ERC721Enumerable, Ownable {
             0
         ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 500 500"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base"> Quest Name: ';
 
-        parts[1] = getName(tokenId);
+        parts[1] = token.wizard;
         if (token.score > 1514) {
             parts[
                 2
@@ -398,8 +405,10 @@ contract BaseQuestRewardNFT is ERC721Enumerable, Ownable {
                 string(
                     abi.encodePacked(
                         '{"name": "Quest #',
-                        tokenId,
-                        '", "description": "Quest Achievements are records of heroic adventures acomplished by Wiarrds.", "image": "data:image/svg+xml;base64,',
+                        toString(tokenId),
+                        '", "description": "Quest Achievements are records of heroic adventures acomplished by Wiarrds.", "attributes": [{"trait_type": "difficulty", "value": "',
+                        parts[3],
+                        '"}], "image": "data:image/svg+xml;base64,',
                         Base64.encode(bytes(output)),
                         '"}'
                     )
@@ -423,7 +432,25 @@ contract BaseQuestRewardNFT is ERC721Enumerable, Ownable {
         tokenData[questId] = TokenData({
             wizard: wizard,
             score: score,
-            duration: duration
+            duration: duration,
+            name: getName(questId)
+        });
+        _safeMint(to, questId);
+    }
+
+    function mintWithName(
+        string memory name,
+        address to,
+        uint256 questId,
+        string memory wizard,
+        uint256 score,
+        uint256 duration
+    ) public {
+        tokenData[questId] = TokenData({
+            wizard: wizard,
+            score: score,
+            duration: duration,
+            name: name
         });
         _safeMint(to, questId);
     }
@@ -454,7 +481,7 @@ contract BaseQuestRewardNFT is ERC721Enumerable, Ownable {
         return uint256(keccak256(abi.encodePacked(input)));
     }
 
-    function getName(uint256 tokenId) internal view returns (string memory) {
+    function getName(uint256 tokenId) public view returns (string memory) {
         string[3] memory parts;
         parts[0] = pluck(tokenId, actions);
         parts[1] = pluck(tokenId, names);
