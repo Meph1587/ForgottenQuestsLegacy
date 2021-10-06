@@ -20,12 +20,16 @@ const defaultAccountRinkeby = {
     accountsBalance: "10000000000000000000000"
 }
 
-const rinkebyAccounts = ["6b2bb4b34cf7976b3fb46d0a5718c8b0a12e6507ce8bcbfb6feb7eee7235f874"];
+const rinkebyAccount = [process.env.PRIVATE_KEY];
 
 export const networks: NetworksUserConfig = {
     // Needed for `solidity-coverage`
     coverage: {
         url: 'http://localhost:8555',
+        gas: 'auto',
+        hardfork: 'london', 
+        initialBaseFeePerGas: 1,
+        gasPrice: 2,
     },
 
     ganache: {
@@ -38,7 +42,7 @@ export const networks: NetworksUserConfig = {
     },
 
     rinkeby: {
-        accounts: rinkebyAccounts,
+        accounts: rinkebyAccount,
         gas: 'auto',
         hardfork: 'london', 
         url: process.env.RINEKBY_API,

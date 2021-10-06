@@ -39,9 +39,6 @@ describe('QuestAchievements', function () {
         it('should be deployed', async function () {
             expect(rewards.address).to.not.equal(0);
 
-            for(let i=0;i<200;i++){
-                console.log(await rewards.getName(i))
-            }
         });
     });
 

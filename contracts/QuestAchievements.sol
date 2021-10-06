@@ -405,11 +405,11 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
                 string(
                     abi.encodePacked(
                         '{"name": "Quest #',
-                        toString(tokenId),
+                            toString(tokenId),
                         '", "description": "Quest Achievements are records of heroic adventures acomplished by Wiarrds.", "attributes": [{"trait_type": "difficulty", "value": "',
-                        parts[3],
+                            parts[3],
                         '"}], "image": "data:image/svg+xml;base64,',
-                        Base64.encode(bytes(output)),
+                            Base64.encode(bytes(output)),
                         '"}'
                     )
                 )

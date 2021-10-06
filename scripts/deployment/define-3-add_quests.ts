@@ -28,7 +28,7 @@ export async function addQuest(c: DeployConfig): Promise<DeployConfig> {
     ]);
 
     await cut.connect(c.ownerAcc).diamondCut(diamondCut, zeroAddress, [])
-    console.log(`Facet Added `)
+    console.log(`Facet Added Successfully!`)
 
 
     let loupe = await diamondAsFacet(c.tavern as Contract, "DiamondLoupeFacet") as DiamondLoupeFacet;

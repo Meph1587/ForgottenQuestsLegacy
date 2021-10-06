@@ -22,7 +22,7 @@ contract QuestTools {
 
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
 
-        require(!ts.initialized, "LoudTavern: already initialized");
+        require(!ts.initialized, "Tavern: already initialized");
         LibOwnership.enforceIsContractOwner();
 
         ts.initialized = true;
@@ -115,22 +115,22 @@ contract QuestTools {
                     ts.wizardStorage.getAffinityOccurrences(
                         positiveAffinities[1]
                     )
-                
-            )
+                )
         );
 
-       uint256 scoreNegative = uint256(100000).div(
+        uint256 scoreNegative = uint256(100000).div(
             uint256(
                 ts.wizardStorage.getAffinityOccurrences(negativeAffinities[0])
             ).add(
                     ts.wizardStorage.getAffinityOccurrences(
                         negativeAffinities[1]
                     )
-                
-            )
+                )
         );
 
-        uint256 score = sqrt(scorePositive.mul(uint256(100000).div(scoreNegative)));
+        uint256 score = sqrt(
+            scorePositive.mul(uint256(100000).div(scoreNegative))
+        );
 
         return score;
     }
@@ -172,10 +172,10 @@ contract QuestTools {
             }
         }
 
-        require(
-            affinityCountPositive > 0,
-            "Wizard does not have required affinity"
-        );
+        // require(
+        //     affinityCountPositive > 0,
+        //     "Wizard does not have required affinity"
+        // );
 
         // this is safe because affinityCount can not be greater then 5
         // reduce duration by 2 days for every positive affinity
@@ -186,11 +186,11 @@ contract QuestTools {
             (affinityCountNegative).mul(LibTavernStorage.TIME_ADJUSTMENT);
     }
 
-     // babylonian method (https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method)
-    function sqrt(uint y) public pure returns (uint z) {
+    // babylonian method (https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method)
+    function sqrt(uint256 y) public pure returns (uint256 z) {
         if (y > 3) {
             z = y;
-            uint x = y / 2 + 1;
+            uint256 x = y / 2 + 1;
             while (x < z) {
                 z = x;
                 x = (y / x + x) / 2;

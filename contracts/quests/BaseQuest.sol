@@ -28,17 +28,21 @@ contract BaseQuest {
 
     QuestTools private qt;
 
-    QuestAchievements private questAchievements;
+    QuestAchievements public questAchievements;
 
     address public baseQuestFeeAddress;
 
     uint256 public nextBaseQuestAvailableAt;
 
-    constructor(address _baseQuestFeeAddress, address _questAchievements) {
+    function initBaseQuests(
+        address _tavern,
+        address _baseQuestFeeAddress,
+        address _questAchievements
+    ) public {
         baseQuestFeeAddress = _baseQuestFeeAddress;
         questAchievements = QuestAchievements(_questAchievements);
         nextBaseQuestAvailableAt = block.timestamp;
-        qt = QuestTools(address(this));
+        qt = QuestTools(_tavern);
     }
 
     // generate a new quest using random affinity
@@ -77,10 +81,6 @@ contract BaseQuest {
         Quest storage quest = questLog[id];
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
 
-        require(
-            ts.wizards.ownerOf(wizardId) == msg.sender,
-            "Not owner of wizard"
-        );
         ts.wizards.transferFrom(msg.sender, address(this), wizardId);
 
         require(quest.accepted_by == address(0), "Quest accepted already");
@@ -102,7 +102,10 @@ contract BaseQuest {
     function completeBaseQuest(uint256 id) public {
         Quest storage quest = questLog[id];
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
-        require(quest.accepted_by == msg.sender, "Quest accepted already");
+        require(
+            quest.accepted_by == msg.sender,
+            "Only wizard owner can complete"
+        );
         require(quest.ends_at < block.timestamp, "Quest not ended yet");
         ts.wizards.approve(msg.sender, quest.wizardId);
         ts.wizards.transferFrom(address(this), msg.sender, quest.wizardId);
@@ -129,15 +132,15 @@ contract BaseQuest {
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
         require(
             quest.accepted_by == msg.sender,
-            "Quest not accpeted by msg.sender"
+            "Only wizard owner can abandon"
         );
         require(quest.ends_at > block.timestamp, "Quest ended");
 
         // pay penalty fee based o how early it is abondoned
         uint256 feeAmount = LibTavernStorage
             .BASE_FEE
-            .mul(block.timestamp - quest.accepted_at)
-            .div(quest.ends_at - quest.accepted_at);
+            .mul(block.timestamp.sub(quest.accepted_at))
+            .div(quest.ends_at.sub(quest.accepted_at));
 
         ts.weth.transferFrom(msg.sender, baseQuestFeeAddress, feeAmount);
 
