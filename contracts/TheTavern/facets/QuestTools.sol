@@ -47,6 +47,22 @@ contract QuestTools {
         return address(ts.wizards);
     }
 
+    function getRandomTrait(uint256 nonce) public view returns (uint16) {
+        uint256 bigNr = uint256(
+            keccak256(
+                abi.encodePacked(
+                    nonce,
+                    tx.origin,
+                    block.difficulty,
+                    blockhash(block.number.sub(1))
+                )
+            )
+        );
+        //overflow can not happen here
+        uint16 aff = uint16(bigNr % 341);
+        return aff;
+    }
+
     function getRandomAffinity(uint256 _nonce) public view returns (uint16) {
         uint256 bigNr = uint256(
             keccak256(
@@ -59,7 +75,7 @@ contract QuestTools {
             )
         );
         //overflow can not happen here
-        uint16 aff = uint16(bigNr % 341);
+        uint16 aff = uint16(bigNr % 286);
         return aff;
     }
 
@@ -72,6 +88,11 @@ contract QuestTools {
         uint16[] memory affinities = ts.wizardStorage.getAllTraitsAffinities(
             traitIds
         );
+
+        //in case [7777, 7777, 7777, 7777, 7777] is provided
+        if (affinities.length == 0) {
+            return getRandomAffinity(nonce);
+        }
 
         uint256 bigNr = uint256(
             keccak256(
@@ -88,27 +109,22 @@ contract QuestTools {
         return affinities[aff];
     }
 
-    function getRandomTrait(uint256 nonce) public view returns (uint16) {
-        uint256 bigNr = uint256(
-            keccak256(
-                abi.encodePacked(
-                    nonce,
-                    tx.origin,
-                    block.difficulty,
-                    blockhash(block.number.sub(1))
-                )
-            )
-        );
-        //overflow can not happen here
-        uint16 aff = uint16(bigNr % 287);
-        return aff;
-    }
-
     function wizardHasOneOfTraits(uint256 wizardId, uint16[5] memory traitIds)
         public
         view
         returns (bool)
     {
+        //exit if required traits is empty
+        if (
+            traitIds[0] == 7777 &&
+            traitIds[1] == 7777 &&
+            traitIds[2] == 7777 &&
+            traitIds[3] == 7777 &&
+            traitIds[4] == 7777
+        ) {
+            return true;
+        }
+
         Grimoire ws = LibTavernStorage.tavernStorage().wizardStorage;
         for (uint8 i = 0; i < traitIds.length; i++) {
             if (

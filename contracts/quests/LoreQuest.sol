@@ -19,7 +19,7 @@ contract LoreQuest {
 
     address public feeAddress;
 
-    uint256 public nextQuestAvailableAt;
+    uint256 public nextLoreQuestAvailableAt;
 
     struct Quest {
         uint256 id;
@@ -39,26 +39,36 @@ contract LoreQuest {
     }
     Quest[] private questLog;
 
-    QuestAchievements private questAchievements;
+    QuestAchievements public baseQuestAchievements;
 
     QuestTools private qt;
 
-    mapping(address => bool) canMakeQuest;
+    mapping(address => bool) public canMakeQuest;
     address public questMaster;
 
     address public loreQuestFeeAddress;
 
-    constructor(address _loreQuestFeeAddress, address _questAchievements) {
+    function initLoreQuests(
+        address _tavern,
+        address _loreQuestFeeAddress,
+        address _baseQuestAchievements
+    ) public {
         loreQuestFeeAddress = _loreQuestFeeAddress;
-        questAchievements = QuestAchievements(_questAchievements);
+        baseQuestAchievements = QuestAchievements(_baseQuestAchievements);
+        nextLoreQuestAvailableAt = block.timestamp;
         questMaster = msg.sender;
         canMakeQuest[msg.sender] = true;
-        qt = QuestTools(address(this));
+        qt = QuestTools(_tavern);
     }
 
     function setCanMakeQuest(address addr, bool newValue) public {
         require(msg.sender == questMaster, "Only quest master can edit this");
         canMakeQuest[addr] = newValue;
+    }
+
+    function setQuestMaster(address addr) public {
+        require(msg.sender == questMaster, "Only quest master can edit this");
+        questMaster = addr;
     }
 
     // generate a new quest using random affinity
@@ -70,6 +80,10 @@ contract LoreQuest {
         uint16[5] calldata requiredTraits
     ) public {
         require(canMakeQuest[msg.sender], "Not allowed to make Lore quests");
+        require(
+            nextLoreQuestAvailableAt < block.timestamp,
+            "Quest Cooldown not elapsed"
+        );
 
         uint256 nonce = questLog.length.mul(4);
         uint16[2] memory pos_aff = [
@@ -99,6 +113,7 @@ contract LoreQuest {
         });
         questLog.push(quest);
         ERC721(_rewardNFT).transferFrom(msg.sender, address(this), _nftId);
+        nextLoreQuestAvailableAt = block.timestamp.add(259200); /// 3 days;
     }
 
     function acceptLoreQuest(uint256 id, uint256 wizardId) public {
@@ -135,7 +150,10 @@ contract LoreQuest {
     function completeLoreQuest(uint256 id) public {
         Quest storage quest = questLog[id];
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
-        require(quest.accepted_by == msg.sender, "Quest accepted already");
+        require(
+            quest.accepted_by == msg.sender,
+            "Only wizard owner can complete"
+        );
         require(quest.ends_at < block.timestamp, "Quest not ended yet");
         ts.wizards.approve(msg.sender, quest.wizardId);
         ts.wizards.transferFrom(address(this), msg.sender, quest.wizardId);
@@ -155,7 +173,7 @@ contract LoreQuest {
             quest.negative_affinities
         );
 
-        questAchievements.mintWithName(
+        baseQuestAchievements.mintWithName(
             quest.name,
             msg.sender,
             quest.id, //rewardNFT.totalSupply(),
@@ -170,7 +188,7 @@ contract LoreQuest {
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
         require(
             quest.accepted_by == msg.sender,
-            "Quest not accpeted by msg.sender"
+            "Only wizard owner can abandon"
         );
         require(quest.ends_at > block.timestamp, "Quest ended");
 

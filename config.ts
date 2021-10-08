@@ -61,7 +61,7 @@ export const networks: NetworksUserConfig = {
         forking: {
             url: process.env.RINEKBY_API,
             enabled: true,
-            blockNumber: 9429763, // for rinkeby
+            blockNumber: 9430419, // for rinkeby
         }
     },
 

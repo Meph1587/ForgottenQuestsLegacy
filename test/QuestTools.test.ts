@@ -61,19 +61,26 @@ describe('Quest Tool', function () {
             expect(await tools.getWeth()).to.be.equal(chain.testAddress);
             expect(await tools.getWizards()).to.be.equal(chain.testAddress);
             expect(await tools.sqrt(1)).to.be.equal(1);
+            await expect(
+                tools.initialize(chain.zeroAddress, storageAddress, chain.testAddress)
+            ).to.be.revertedWith("WETH must not be 0x0");
+            await expect(
+                tools.initialize(chain.testAddress, storageAddress, chain.testAddress)
+            ).to.be.revertedWith("Tavern: already initialized");
+
         });
 
     });
 
     describe('Get Random Affinity', function () {
         it('it gets a random number in the correct range', async function () {
-            expect( await tools.getRandomAffinity(1)).to.be.gte(0).and.to.be.lt(341)
-            expect( await tools.getRandomAffinity(2)).to.be.gte(0).and.to.be.lt(341)
-            expect( await tools.getRandomAffinity(3)).to.be.gte(0).and.to.be.lt(341)
-            expect( await tools.getRandomAffinity(4)).to.be.gte(0).and.to.be.lt(341)
-            expect( await tools.getRandomAffinity(5)).to.be.gte(0).and.to.be.lt(341)
-            expect( await tools.getRandomAffinity(6)).to.be.gte(0).and.to.be.lt(341)
-            expect( await tools.getRandomAffinity(7)).to.be.gte(0).and.to.be.lt(341)
+            expect( await tools.getRandomAffinity(1)).to.be.gte(0).and.to.be.lt(286)
+            expect( await tools.getRandomAffinity(2)).to.be.gte(0).and.to.be.lt(286)
+            expect( await tools.getRandomAffinity(3)).to.be.gte(0).and.to.be.lt(286)
+            expect( await tools.getRandomAffinity(4)).to.be.gte(0).and.to.be.lt(286)
+            expect( await tools.getRandomAffinity(5)).to.be.gte(0).and.to.be.lt(286)
+            expect( await tools.getRandomAffinity(6)).to.be.gte(0).and.to.be.lt(286)
+            expect( await tools.getRandomAffinity(7)).to.be.gte(0).and.to.be.lt(286)
         });
     });
 
@@ -87,19 +94,24 @@ describe('Quest Tool', function () {
             affinity = await tools.getRandomAffinityFromTraits(1,[47,51,7777,7777,7777])
 
             expect(affinity).to.be.oneOf([102,118,257])
+
+            // in case no are provided returns a random one
+            affinity = await tools.getRandomAffinityFromTraits(1,[7777,7777,7777,7777,7777])
+
+            expect(affinity).to.be.gte(0).and.to.be.lt(341)
             
         });
     });
 
     describe('Get Random Trait', function () {
         it('it gets a random number in the correct range', async function () {
-            expect( await tools.getRandomTrait(1)).to.be.gt(0).and.to.be.lt(287)
-            expect( await tools.getRandomTrait(2)).to.be.gt(0).and.to.be.lt(287)
-            expect( await tools.getRandomTrait(3)).to.be.gt(0).and.to.be.lt(287)
-            expect( await tools.getRandomTrait(4)).to.be.gt(0).and.to.be.lt(287)
-            expect( await tools.getRandomTrait(5)).to.be.gt(0).and.to.be.lt(287)
-            expect( await tools.getRandomTrait(6)).to.be.gt(0).and.to.be.lt(287)
-            expect( await tools.getRandomTrait(7)).to.be.gt(0).and.to.be.lt(287)
+            expect( await tools.getRandomTrait(1)).to.be.gte(0).and.to.be.lt(341)
+            expect( await tools.getRandomTrait(2)).to.be.gte(0).and.to.be.lt(341)
+            expect( await tools.getRandomTrait(3)).to.be.gte(0).and.to.be.lt(341)
+            expect( await tools.getRandomTrait(4)).to.be.gte(0).and.to.be.lt(341)
+            expect( await tools.getRandomTrait(5)).to.be.gte(0).and.to.be.lt(341)
+            expect( await tools.getRandomTrait(6)).to.be.gte(0).and.to.be.lt(341)
+            expect( await tools.getRandomTrait(7)).to.be.gte(0).and.to.be.lt(341)
         });
     });
 
@@ -110,6 +122,10 @@ describe('Quest Tool', function () {
 
             expect( await tools.wizardHasOneOfTraits(Mephistopheles, [1,7777,7777,7777,7777] )).to.be.false
             expect( await tools.wizardHasOneOfTraits(Mephistopheles, [4,20,121,190,2] )).to.be.false
+
+
+
+            expect( await tools.wizardHasOneOfTraits(Mephistopheles, [7777,7777,7777,7777,7777] )).to.be.true
         });
     });
 
