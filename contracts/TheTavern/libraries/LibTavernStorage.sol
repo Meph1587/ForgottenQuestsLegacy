@@ -11,9 +11,9 @@ library LibTavernStorage {
 
     uint256 public constant BASE_EXPIRATION = 604800; // 1 week
     uint256 public constant BASE_FEE = 20**16; //0.02 ETH
-    uint256 public constant BASE_DURATION = 140; //1209600; // 2 weeks
-    uint256 public constant TIME_ADJUSTMENT = 20; //86400; // 2 days
-    uint256 public constant COOLDOWN = 300; //21600; //6 hours
+    uint256 public constant BASE_DURATION = 1209600; //1209600; // 2 weeks
+    uint256 public constant TIME_ADJUSTMENT = 86400; //86400; // 1 day
+    uint256 public constant COOLDOWN = 21600; //21600; //6 hours
 
     struct Storage {
         bool initialized;

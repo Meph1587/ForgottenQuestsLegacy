@@ -30,6 +30,7 @@ export const networks: NetworksUserConfig = {
         hardfork: 'london', 
         initialBaseFeePerGas: 1,
         gasPrice: 2,
+        gasMultiplier: 1.5,
     },
 
     ganache: {
@@ -37,6 +38,8 @@ export const networks: NetworksUserConfig = {
         chainId: 5777,
         accounts: defaultAccount,
         gas: 'auto',
+        hardfork: 'london', 
+        initialBaseFeePerGas: 1,
         gasPrice: 20000000000, // 1 gwei
         gasMultiplier: 1.5,
     },
@@ -52,10 +55,13 @@ export const networks: NetworksUserConfig = {
         mining: {
             auto: true
         },
-        hardfork: 'london',
+        hardfork: 'london', 
+        initialBaseFeePerGas: 1,
+        gas:'auto',
         forking: {
             url: process.env.RINEKBY_API,
-            enabled: true
+            enabled: true,
+            blockNumber: 9429763, // for rinkeby
         }
     },
 

@@ -12,6 +12,9 @@ import "../libraries/LibTavernStorage.sol";
 contract QuestTools {
     using SafeMath for uint256;
 
+    // a big one
+    uint256 immutable BONE = uint256(10**18);
+
     // executed only once
     function initialize(
         address _weth,
@@ -32,6 +35,18 @@ contract QuestTools {
         ts.wizards = ERC721(_wizards);
     }
 
+    function getWeth() public view returns (address) {
+        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
+
+        return address(ts.weth);
+    }
+
+    function getWizards() public view returns (address) {
+        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
+
+        return address(ts.wizards);
+    }
+
     function getRandomAffinity(uint256 _nonce) public view returns (uint16) {
         uint256 bigNr = uint256(
             keccak256(
@@ -44,7 +59,7 @@ contract QuestTools {
             )
         );
         //overflow can not happen here
-        uint16 aff = uint16(bigNr % 340);
+        uint16 aff = uint16(bigNr % 341);
         return aff;
     }
 
@@ -85,7 +100,7 @@ contract QuestTools {
             )
         );
         //overflow can not happen here
-        uint16 aff = uint16(bigNr % 286);
+        uint16 aff = uint16(bigNr % 287);
         return aff;
     }
 
@@ -96,7 +111,9 @@ contract QuestTools {
     {
         Grimoire ws = LibTavernStorage.tavernStorage().wizardStorage;
         for (uint8 i = 0; i < traitIds.length; i++) {
-            if (ws.wizardHasTrait(wizardId, i)) {
+            if (
+                ws.wizardHasTrait(wizardId, traitIds[i]) && traitIds[i] != 7777
+            ) {
                 return true;
             }
         }
@@ -108,28 +125,16 @@ contract QuestTools {
         uint16[2] memory negativeAffinities
     ) public view returns (uint256) {
         LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
-        uint256 scorePositive = uint256(100000).div(
-            uint256(
-                ts.wizardStorage.getAffinityOccurrences(positiveAffinities[0])
-            ).add(
-                    ts.wizardStorage.getAffinityOccurrences(
-                        positiveAffinities[1]
-                    )
-                )
-        );
+        uint256 scorePositive = uint256(
+            ts.wizardStorage.getAffinityOccurrences(positiveAffinities[0])
+        ).add(ts.wizardStorage.getAffinityOccurrences(positiveAffinities[1]));
 
-        uint256 scoreNegative = uint256(100000).div(
-            uint256(
-                ts.wizardStorage.getAffinityOccurrences(negativeAffinities[0])
-            ).add(
-                    ts.wizardStorage.getAffinityOccurrences(
-                        negativeAffinities[1]
-                    )
-                )
-        );
+        uint256 scoreNegative = uint256(
+            ts.wizardStorage.getAffinityOccurrences(negativeAffinities[0])
+        ).add(ts.wizardStorage.getAffinityOccurrences(negativeAffinities[1]));
 
         uint256 score = sqrt(
-            scorePositive.mul(uint256(100000).div(scoreNegative))
+            scoreNegative.mul(BONE.mul(100000).div(scorePositive)).div(BONE)
         );
 
         return score;
@@ -154,20 +159,21 @@ contract QuestTools {
         // count how many times selected wizard has affinity
         uint256 affinityCountPositive = 0;
         for (uint8 i = 0; i < wizAffinities.length; i++) {
-            if (
-                (wizAffinities[i] == pos_affinities[0]) ||
-                (wizAffinities[i] == pos_affinities[1])
-            ) {
+            if (wizAffinities[i] == pos_affinities[0]) {
+                affinityCountPositive += 1;
+            }
+
+            if (wizAffinities[i] == pos_affinities[1]) {
                 affinityCountPositive += 1;
             }
         }
 
         uint256 affinityCountNegative = 0;
         for (uint8 i = 0; i < wizAffinities.length; i++) {
-            if (
-                (wizAffinities[i] == neg_affinities[0]) ||
-                (wizAffinities[i] == neg_affinities[1])
-            ) {
+            if (wizAffinities[i] == neg_affinities[0]) {
+                affinityCountNegative += 1;
+            }
+            if (wizAffinities[i] == neg_affinities[1]) {
                 affinityCountNegative += 1;
             }
         }
