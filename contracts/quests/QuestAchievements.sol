@@ -3,7 +3,7 @@ pragma solidity 0.8.7;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./libraries/stringsutils.sol";
+import "../libraries/stringsutils.sol";
 
 contract QuestAchievements is ERC721Enumerable, Ownable {
     using stringsutils for string;
@@ -405,11 +405,11 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
                 string(
                     abi.encodePacked(
                         '{"name": "Quest #',
-                            toString(tokenId),
+                        toString(tokenId),
                         '", "description": "Quest Achievements are records of heroic adventures acomplished by Wiarrds.", "attributes": [{"trait_type": "difficulty", "value": "',
-                            parts[3],
+                        parts[3],
                         '"}], "image": "data:image/svg+xml;base64,',
-                            Base64.encode(bytes(output)),
+                        Base64.encode(bytes(output)),
                         '"}'
                     )
                 )

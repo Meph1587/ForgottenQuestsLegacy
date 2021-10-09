@@ -5,9 +5,9 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../QuestAchievements.sol";
-import "../TheTavern/facets/QuestTools.sol";
-import "../TheTavern/libraries/LibTavernStorage.sol";
+import "../libraries/LibTavernStorage.sol";
+import "./QuestAchievements.sol";
+import "./QuestTools.sol";
 
 contract LoreQuest {
     using SafeMath for uint16;
