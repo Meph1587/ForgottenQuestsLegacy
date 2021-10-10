@@ -89,42 +89,42 @@ describe('QuestAchievements', function () {
             await expect(rewards.connect(happyPirate).mint(
                 happyPirateAddress,
                 "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
-                "Hex Mage Orpheus of the Quantum Shadow",
+                "Archmage Orpheus of the Quantum Shadow",
                 939393,
                 431000
             )).to.not.be.reverted;
 
-            console.log( "\n",await rewards.tokenURI(1))
+           expect(await rewards.tokenURI(1)).to.not.be.eq("");
 
             await expect(rewards.connect(happyPirate).mint(
                 happyPirateAddress,
                 "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
-                "Hex Mage Orpheus of the Quantum Shadow",
+                "Archmage Orpheus of the Quantum Shadow",
                 602,
                 431000
             )).to.not.be.reverted;
 
-            console.log( "\n",await rewards.tokenURI(2))
+           expect(await rewards.tokenURI(2)).to.not.be.eq("");
 
             await expect(rewards.connect(happyPirate).mint(
                 happyPirateAddress,
                 "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
-                "Hex Mage Orpheus of the Quantum Shadow",
+                "Archmage Orpheus of the Quantum Shadow",
                 190,
                 431000
             )).to.not.be.reverted;
 
-            console.log( "\n",await rewards.tokenURI(3))
+           expect(await rewards.tokenURI(3)).to.not.be.eq("");
 
             await expect(rewards.connect(happyPirate).mint(
                 happyPirateAddress,
                 "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
-                "Hex Mage Orpheus of the Quantum Shadow",
+                "Archmage Orpheus of the Quantum Shadow",
                 90,
                 431000
             )).to.not.be.reverted;
 
-            console.log( "\n",await rewards.tokenURI(4))
+           expect(await rewards.tokenURI(4)).to.not.be.eq("");
         
         });
 
