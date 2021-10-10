@@ -4,6 +4,7 @@ pragma solidity 0.8.7;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../libraries/stringsutils.sol";
+import "../libraries/Base64.sol";
 
 contract QuestAchievements is ERC721Enumerable, Ownable {
     using stringsutils for string;
@@ -85,7 +86,9 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         "To The Aid of ",
         "The Saving of ",
         "An Espionage of ",
-        "An Espionage for "
+        "An Espionage for ",
+        "An Initiation with ",
+        "Entertainment for "
     ];
 
     string[] private names = [
@@ -330,9 +333,22 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         string name;
     }
 
-    mapping(uint256 => TokenData) tokenData;
+    mapping(uint256 => TokenData) public tokenData;
+    mapping(address => bool) public allowedMinterContracts;
 
-    constructor() ERC721("WizardTrophies", "TROPHY") Ownable() {}
+    modifier onlyMinter() {
+        require(
+            allowedMinterContracts[msg.sender] == true,
+            "Not allowed to mint"
+        );
+        _;
+    }
+
+    constructor() ERC721("QuestAchievements", "ACHIEVEMENTS") Ownable() {}
+
+    function setMintingAllowance(address quest, bool val) public onlyOwner {
+        allowedMinterContracts[quest] = val;
+    }
 
     function tokenURI(uint256 tokenId)
         public
@@ -342,47 +358,55 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
     {
         TokenData storage token = tokenData[tokenId];
 
-        string[11] memory parts;
+        string[12] memory parts;
         parts[
             0
-        ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 500 500"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base"> Quest Name: ';
+        ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 450 450"><style>.base { fill: white; font-family: serif; font-size: 14px;} .gray{fill: grey} </style><rect width="100%" height="100%" fill="black" /><text x="50%" y="10" class="base"  text-anchor="middle">o }={}==={}====={}==={}===][==||==][==={}==={}====={}==={}={ o</text><text x="50%" y="40" class="base" text-anchor="middle">';
 
-        parts[1] = token.wizard;
+        parts[1] = token.name;
         if (token.score > 1514) {
             parts[
                 2
-            ] = '</text><style>.diff {fill: orange}</style><text x="10" y="40" class="diff"> ';
+            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="70" class="diff"> ';
             parts[3] = "Legendary";
         } else if (token.score > 601) {
             parts[
                 2
-            ] = '</text><style>.diff {fill: purple}</style><text x="10" y="40" class="diff"> ';
+            ] = '</text><style>.diff {fill: #c14fdd}</style><text text-anchor="middle" x="50%" y="70" class="diff"> ';
             parts[3] = "Epic";
         } else if (token.score > 179) {
             parts[
                 2
-            ] = '</text><style>.diff {fill: blue}</style><text x="10" y="40" class="diff"> ';
+            ] = '</text><style>.diff {fill: #3e58dd}</style><text text-anchor="middle" x="50%" y="70" class="diff"> ';
             parts[3] = "Hard";
         } else {
             parts[
                 2
-            ] = '</text><style>.diff {fill: gray}</style><text x="10" y="40" class="base"> ';
+            ] = '</text><style>.diff {fill: #b7b7b7}</style><text text-anchor="middle" x="50%" y="70" class="diff"> ';
             parts[3] = "Easy";
         }
-
-        parts[4] = '</text><text x="10" y="60" class="base"> Wizard: ';
+        parts[
+            4
+        ] = '</text><text text-anchor="middle" x="50%" y="95" class="base">=================================================</text><text text-anchor="middle" x="50%" y="130" class="base"> Acomplished by Wizard: </text><text text-anchor="middle" x="50%" y="155" class="base gray"> ';
 
         parts[5] = token.wizard;
 
-        parts[6] = '</text><text x="10" y="80" class="base"> Score: ';
+        parts[
+            6
+        ] = '</text><text text-anchor="middle" x="50%" y="195" class="base"> Score: ';
 
-        parts[7] = toString(token.score);
+        parts[8] = toString(token.score);
 
-        parts[8] = '</text><text x="10" y="100" class="base"> Duration: ';
+        parts[
+            9
+        ] = '</text><text text-anchor="middle" x="50%" y="215" class="base"> Duration: ';
 
-        parts[9] = toString(token.duration / 86400);
+        parts[10] = toString(token.duration / 86400);
 
-        parts[10] = " days </text></svg>";
+        parts[
+            11
+        ] = ' days </text><text x="15" y="73" class="base" transform="rotate(90 40,40)">}====={}====={}====={}====={}====={}====={}===={</text><text x="15" y="14" class="base" transform="rotate(90 225,225)">}====={}====={}====={}====={}====={}====={}===={</text></svg>';
+        //<polygon x="10" y="170" points="100,10 40,198 190,78 10,78 160,198" style="fill:lime;stroke:purple;stroke-width:5;fill-rule:evenodd;"/>
 
         string memory output = string(
             abi.encodePacked(
@@ -396,7 +420,8 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
                 parts[7],
                 parts[8],
                 parts[9],
-                parts[10]
+                parts[10],
+                parts[11]
             )
         );
 
@@ -424,35 +449,31 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
 
     function mint(
         address to,
-        uint256 questId,
-        string memory wizard,
-        uint256 score,
-        uint256 duration
-    ) public {
-        tokenData[questId] = TokenData({
-            wizard: wizard,
-            score: score,
-            duration: duration,
-            name: getName(questId)
-        });
-        _safeMint(to, questId);
-    }
-
-    function mintWithName(
         string memory name,
-        address to,
-        uint256 questId,
         string memory wizard,
         uint256 score,
         uint256 duration
-    ) public {
-        tokenData[questId] = TokenData({
+    ) public onlyMinter {
+        uint256 newTokenId = totalSupply();
+        tokenData[newTokenId] = TokenData({
             wizard: wizard,
             score: score,
             duration: duration,
             name: name
         });
-        _safeMint(to, questId);
+        _safeMint(to, newTokenId);
+    }
+
+    function getName(uint256 tokenId) public view returns (string memory) {
+        string[3] memory parts;
+        parts[0] = pluck(tokenId, actions);
+        parts[1] = pluck(tokenId, names);
+        parts[2] = pluck(tokenId, locations);
+
+        string memory output = string(
+            abi.encodePacked(parts[0], parts[1], parts[2])
+        );
+        return output;
     }
 
     function toString(uint256 value) internal pure returns (string memory) {
@@ -477,101 +498,18 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         return string(buffer);
     }
 
-    function random(string memory input) internal pure returns (uint256) {
-        return uint256(keccak256(abi.encodePacked(input)));
-    }
-
-    function getName(uint256 tokenId) public view returns (string memory) {
-        string[3] memory parts;
-        parts[0] = pluck(tokenId, actions);
-        parts[1] = pluck(tokenId, names);
-        parts[2] = pluck(tokenId, locations);
-
-        string memory output = string(
-            abi.encodePacked(parts[0], parts[1], parts[2])
-        );
-        return output;
+    function random(string memory input) internal view returns (uint256) {
+        return uint256(keccak256(abi.encodePacked(input, block.number)));
     }
 
     function pluck(uint256 tokenId, string[] memory sourceArray)
         internal
-        pure
+        view
         returns (string memory)
     {
         uint256 rand = random(toString(tokenId));
         string memory output = sourceArray[rand % sourceArray.length];
 
         return output;
-    }
-}
-
-/// [MIT License]
-/// @title Base64
-/// @notice Provides a function for encoding some bytes in base64
-/// @author Brecht Devos <brecht@loopring.org>
-library Base64 {
-    bytes internal constant TABLE =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-    /// @notice Encodes some bytes to the base64 representation
-    function encode(bytes memory data) internal pure returns (string memory) {
-        uint256 len = data.length;
-        if (len == 0) return "";
-
-        // multiply by 4/3 rounded up
-        uint256 encodedLen = 4 * ((len + 2) / 3);
-
-        // Add some extra buffer at the end
-        bytes memory result = new bytes(encodedLen + 32);
-
-        bytes memory table = TABLE;
-
-        assembly {
-            let tablePtr := add(table, 1)
-            let resultPtr := add(result, 32)
-
-            for {
-                let i := 0
-            } lt(i, len) {
-
-            } {
-                i := add(i, 3)
-                let input := and(mload(add(data, i)), 0xffffff)
-
-                let out := mload(add(tablePtr, and(shr(18, input), 0x3F)))
-                out := shl(8, out)
-                out := add(
-                    out,
-                    and(mload(add(tablePtr, and(shr(12, input), 0x3F))), 0xFF)
-                )
-                out := shl(8, out)
-                out := add(
-                    out,
-                    and(mload(add(tablePtr, and(shr(6, input), 0x3F))), 0xFF)
-                )
-                out := shl(8, out)
-                out := add(
-                    out,
-                    and(mload(add(tablePtr, and(input, 0x3F))), 0xFF)
-                )
-                out := shl(224, out)
-
-                mstore(resultPtr, out)
-
-                resultPtr := add(resultPtr, 4)
-            }
-
-            switch mod(len, 3)
-            case 1 {
-                mstore(sub(resultPtr, 2), shl(240, 0x3d3d))
-            }
-            case 2 {
-                mstore(sub(resultPtr, 1), shl(248, 0x3d))
-            }
-
-            mstore(result, encodedLen)
-        }
-
-        return string(result);
     }
 }

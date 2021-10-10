@@ -15,6 +15,7 @@ contract BaseQuest {
 
     struct Quest {
         uint256 id;
+        string name;
         address accepted_by;
         uint256 accepted_at;
         uint256 wizardId;
@@ -63,6 +64,7 @@ contract BaseQuest {
         ];
         Quest memory quest = Quest({
             id: questLog.length,
+            name: questAchievements.getName(questLog.length),
             accepted_by: address(0),
             accepted_at: block.timestamp,
             wizardId: 10000,
@@ -120,7 +122,7 @@ contract BaseQuest {
 
         questAchievements.mint(
             msg.sender,
-            quest.id, //rewardNFT.totalSupply(),
+            quest.name,
             ts.wizardStorage.getWizardName(quest.wizardId),
             score,
             duration

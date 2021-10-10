@@ -173,10 +173,9 @@ contract LoreQuest {
             quest.negative_affinities
         );
 
-        baseQuestAchievements.mintWithName(
-            quest.name,
+        baseQuestAchievements.mint(
             msg.sender,
-            quest.id, //rewardNFT.totalSupply(),
+            quest.name,
             ts.wizardStorage.getWizardName(quest.wizardId),
             score,
             duration

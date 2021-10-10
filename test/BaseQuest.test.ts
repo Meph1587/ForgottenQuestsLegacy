@@ -88,6 +88,7 @@ describe('BaseQuest', function () {
             expect(quest.negative_affinities.length).to.eq(2);
             expect(quest.positive_affinities.length).to.eq(2);
             expect(quest.expires_at).to.not.eq(0);
+            expect(quest.name).to.not.eq("");
         });
 
         it('can not creat a quest during cooldown', async function () {
@@ -152,6 +153,7 @@ describe('BaseQuest', function () {
             await quests.newBaseQuest();
             await wizards.approve(quests.address, Mephistopheles);
             await quests.acceptBaseQuest(0, Mephistopheles) 
+            await rewardsNFT.setMintingAllowance(quests.address, true);
 
 
             let quest = await quests.getBaseQuest(0);

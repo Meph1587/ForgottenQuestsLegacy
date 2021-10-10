@@ -257,6 +257,7 @@ describe('LoreQuest', function () {
             await quests.newLoreQuest(questName, wizards.address, AleisterCrowley, 0, [7777,7777,7777,7777,7777]);
             await wizards.approve(quests.address, Mephistopheles);
             await quests.acceptLoreQuest(0, Mephistopheles) 
+            await rewardsNFT.setMintingAllowance(quests.address, true);
 
         })
 
