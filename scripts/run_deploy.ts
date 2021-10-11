@@ -6,7 +6,7 @@ import {addQuest} from "./deployment/define-3-add_quests";
 
 
 
-deployConfig()
+deployConfig(process.env.DEPLOYER_ADDRESS)
 .then(c => connectContracts(c))
 .then(c => deployTavern(c))
 .then(c => addQuest(c))

@@ -5,7 +5,7 @@ import {
     Grimoire as GR,
 } from "../../typechain";
 
-let Grimoire = require("lost-grimoire/abi/Grimoire.json")
+let Grimoire = require("wizard-storage/abi/Grimoire.json")
 
 export async function connectContracts(c: DeployConfig): Promise<DeployConfig> {
     console.log(`\n --- CONNECT WIZARD STORAGE ---`);

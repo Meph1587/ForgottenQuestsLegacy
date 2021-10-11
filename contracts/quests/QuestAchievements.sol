@@ -160,7 +160,6 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         "Elizabeth",
         "Izible",
         "Asmodeus",
-        "JackDaw",
         "Lux",
         "Drusilla",
         "Talon",
@@ -183,7 +182,6 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         "Nadeem",
         "Ramiz",
         "Hagar",
-        "Zelda",
         "Lamia",
         "Isaac",
         "Lenora",
@@ -211,7 +209,6 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         "Iluzor",
         "Devo",
         "Lucifer",
-        "Kobold",
         "Squiddly",
         "Stefan",
         "Prisma",
@@ -288,7 +285,6 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         "Hydra",
         "Shabbith-Ka",
         "Meloogen",
-        "Pus Mother",
         "Porto",
         "Hanataka",
         "Azathoth",
@@ -309,17 +305,14 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         "Finch",
         "Bane",
         "Zevi",
-        "Enzo",
         "Shizu",
         "Zolona",
         "Sturgis",
         "Ratko",
         "Amanita",
-        "Sabina",
         "Suki",
         "Hecate",
         "Imeena",
-        "Nicolas",
         "Ivy",
         "Tumbaj",
         "Lilith",
@@ -331,6 +324,7 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         uint256 score;
         uint256 duration;
         string name;
+        uint8 symbol;
     }
 
     mapping(uint256 => TokenData) public tokenData;
@@ -356,95 +350,90 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         override
         returns (string memory)
     {
-        TokenData storage token = tokenData[tokenId];
+        string[14] memory parts;
 
-        string[12] memory parts;
-        parts[
-            0
-        ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 450 450"><style>.base { fill: white; font-family: serif; font-size: 14px;} .gray{fill: grey} </style><rect width="100%" height="100%" fill="black" /><text x="50%" y="10" class="base"  text-anchor="middle">o }={}==={}====={}==={}===][==||==][==={}==={}====={}==={}={ o</text><text x="50%" y="40" class="base" text-anchor="middle">';
+        parts[0] = tokenData[tokenId].name;
 
-        parts[1] = token.name;
-        if (token.score > 1514) {
+        if (tokenData[tokenId].score > 1514) {
+            parts[1] = "Legendary";
+        } else if (tokenData[tokenId].score > 601) {
+            parts[1] = "Epic";
+        } else if (tokenData[tokenId].score > 179) {
+            parts[1] = "Hard";
+        } else {
+            parts[1] = "Easy";
+        }
+
+        parts[2] = tokenData[tokenId].wizard;
+
+        parts[3] = toString(tokenData[tokenId].score);
+
+        parts[4] = toString(tokenData[tokenId].duration / 86400);
+
+        string memory symbol;
+        if (tokenData[tokenId].symbol == 6) {
             parts[
-                2
-            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="70" class="diff"> ';
-            parts[3] = "Legendary";
-        } else if (token.score > 601) {
+                5
+            ] = '<polygon points="225,325 200,365 250,338 225,378 200,338 250,365" class="shape"/>';
+            symbol = "Hexagram";
+        } else if (tokenData[tokenId].symbol == 5) {
             parts[
-                2
-            ] = '</text><style>.diff {fill: #c14fdd}</style><text text-anchor="middle" x="50%" y="70" class="diff"> ';
-            parts[3] = "Epic";
-        } else if (token.score > 179) {
+                5
+            ] = '<polygon points="225,325 207,376 253,344 197,344 242,376" class="shape"/>';
+            symbol = "Pentagram";
+        } else if (tokenData[tokenId].symbol == 4) {
             parts[
-                2
-            ] = '</text><style>.diff {fill: #3e58dd}</style><text text-anchor="middle" x="50%" y="70" class="diff"> ';
-            parts[3] = "Hard";
+                5
+            ] = '<rect x="200" y="325" width="50" height="50" class="shape"/>';
+            symbol = "Square";
         } else {
             parts[
-                2
-            ] = '</text><style>.diff {fill: #b7b7b7}</style><text text-anchor="middle" x="50%" y="70" class="diff"> ';
-            parts[3] = "Easy";
+                5
+            ] = '<polygon points="225,324 200,368 250,368" class="shape"/>';
+            symbol = "Triangle";
         }
-        parts[
-            4
-        ] = '</text><text text-anchor="middle" x="50%" y="95" class="base">=================================================</text><text text-anchor="middle" x="50%" y="130" class="base"> Acomplished by Wizard: </text><text text-anchor="middle" x="50%" y="155" class="base gray"> ';
-
-        parts[5] = token.wizard;
-
-        parts[
-            6
-        ] = '</text><text text-anchor="middle" x="50%" y="195" class="base"> Score: ';
-
-        parts[8] = toString(token.score);
-
-        parts[
-            9
-        ] = '</text><text text-anchor="middle" x="50%" y="215" class="base"> Duration: ';
-
-        parts[10] = toString(token.duration / 86400);
-
-        parts[
-            11
-        ] = ' days </text><text x="15" y="73" class="base" transform="rotate(90 40,40)">}====={}====={}====={}====={}====={}====={}===={</text><text x="15" y="14" class="base" transform="rotate(90 225,225)">}====={}====={}====={}====={}====={}====={}===={</text></svg>';
-        //<polygon x="10" y="170" points="100,10 40,198 190,78 10,78 160,198" style="fill:lime;stroke:purple;stroke-width:5;fill-rule:evenodd;"/>
 
         string memory output = string(
             abi.encodePacked(
+                '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 450 450"><style>.base{fill:white;font-family:serif;font-size:14px;} .gray{fill:grey} .shape{fill:black;stroke:white;stroke-width:2}</style><rect width="100%" height="100%" fill="black" /><text x="50%" y="10" class="base" text-anchor="middle">o }={}==={}====={}==={}===][==||==][==={}==={}====={}==={}={ o</text><text x="50%" y="55" class="base" text-anchor="middle">',
                 parts[0],
+                '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ',
                 parts[1],
+                '</text><text text-anchor="middle" x="50%" y="120" class="base">=================================================</text><text text-anchor="middle" x="50%" y="150" class="base"> Acomplished by Wizard: </text><text text-anchor="middle" x="50%" y="175" class="base gray"> ',
                 parts[2],
+                '</text><text text-anchor="middle" x="50%" y="225" class="base"> Score: ',
                 parts[3],
+                '</text><text text-anchor="middle" x="50%" y="250" class="base"> Duration: ',
                 parts[4],
+                " days </text>",
                 parts[5],
-                parts[6],
-                parts[7],
-                parts[8],
-                parts[9],
-                parts[10],
-                parts[11]
+                '<text x="15" y="73" class="base" transform="rotate(90 40,40)">}==={}====={}==={} {}==={}====={}==={} {}==={}====={}==={</text><text x="15" y="14" class="base" transform="rotate(90 225,225)">}==={}====={}==={} {}==={}====={}==={} {}==={}====={}==={</text><text x="50%" y="441" class="base" text-anchor="middle">o }={}==={}====={}==={}===][==||==][==={}==={}====={}==={}={ o</text></svg>'
             )
         );
 
-        string memory json = Base64.encode(
-            bytes(
-                string(
-                    abi.encodePacked(
-                        '{"name": "Quest #',
-                        toString(tokenId),
-                        '", "description": "Quest Achievements are records of heroic adventures acomplished by Wiarrds.", "attributes": [{"trait_type": "difficulty", "value": "',
-                        parts[3],
-                        '"}], "image": "data:image/svg+xml;base64,',
-                        Base64.encode(bytes(output)),
-                        '"}'
+        return
+            string(
+                abi.encodePacked(
+                    "data:application/json;base64,",
+                    Base64.encode(
+                        bytes(
+                            string(
+                                abi.encodePacked(
+                                    '{"name": "Quest #',
+                                    toString(tokenId),
+                                    '", "description": "Quest Achievements are records of heroic adventures acomplished by Wiarrds.", "attributes": [{"trait_type": "difficulty", "value": "',
+                                    parts[1],
+                                    '"},{"trait_type": "symbol", "value": " ',
+                                    symbol,
+                                    '"}], "image": "data:image/svg+xml;base64,',
+                                    Base64.encode(bytes(output)),
+                                    '"}'
+                                )
+                            )
+                        )
                     )
                 )
-            )
-        );
-        output = string(
-            abi.encodePacked("data:application/json;base64,", json)
-        );
-
-        return output;
+            );
     }
 
     function mint(
@@ -455,11 +444,24 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         uint256 duration
     ) public onlyMinter {
         uint256 newTokenId = totalSupply();
+        uint256 random = random(newTokenId) % 100;
+        uint8 symbol;
+        if (random >= 90) {
+            symbol = 6;
+        } else if (random >= 70) {
+            symbol = 5;
+        } else if (random >= 40) {
+            symbol = 4;
+        } else {
+            symbol = 3;
+        }
+
         tokenData[newTokenId] = TokenData({
             wizard: wizard,
             score: score,
             duration: duration,
-            name: name
+            name: name,
+            symbol: symbol
         });
         _safeMint(to, newTokenId);
     }
@@ -498,8 +500,11 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         return string(buffer);
     }
 
-    function random(string memory input) internal view returns (uint256) {
-        return uint256(keccak256(abi.encodePacked(input, block.number)));
+    function random(uint256 input) internal view returns (uint256) {
+        return
+            uint256(
+                keccak256(abi.encodePacked(input, msg.sender, block.timestamp))
+            );
     }
 
     function pluck(uint256 tokenId, string[] memory sourceArray)
@@ -507,7 +512,7 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         view
         returns (string memory)
     {
-        uint256 rand = random(toString(tokenId));
+        uint256 rand = random(tokenId);
         string memory output = sourceArray[rand % sourceArray.length];
 
         return output;

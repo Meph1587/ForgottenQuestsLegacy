@@ -1,21 +1,31 @@
 import {DeployConfig} from "./define-0-deploy_config";
-import {deployContract, deployDiamond} from "../helpers/deploy"
+import {deployContract, deployDiamond} from "../../helpers/deploy"
 
 import {
-    BaseQuestRewardNFT,
+    QuestAchievements,
 } from "../../typechain";
 export async function deployTavern(c: DeployConfig): Promise<DeployConfig> {
 
 
-    const rewardNFT = await deployContract('BaseQuestRewardNFT') as BaseQuestRewardNFT;
-    console.log(`BaseQuestRewardNFT deployed to: ${rewardNFT.address.toLowerCase()}`);
+    const rewardNFT = await deployContract('QuestAchievements') as QuestAchievements;
+    console.log(`QuestAchievements deployed to: ${rewardNFT.address.toLowerCase()}`);
 
-    await rewardNFT.mint(c.owner,0,"Mephistopheles",99,999);
+    await rewardNFT.setMintingAllowance(c.owner, true);
+
+    await rewardNFT.connect(c.owner).mint(
+        c.owner,
+        "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
+        "Archmage Orpheus of the Quantum Shadow",
+        1875,
+        431000
+    )
+
+    console.log(`npx hardhat verify --network rinkeby ${rewardNFT.address}`)
     
     let uri = await rewardNFT.tokenURI(0);
     console.log(uri)
 
-    console.log(`\n --- DEPLOY LOUD TAVERN ---`);
+    console.log(`\n --- DEPLOY TAVERN ---`);
     
 
     ///////////////////////////
@@ -41,12 +51,12 @@ export async function deployTavern(c: DeployConfig): Promise<DeployConfig> {
     // Deploy "ReignDiamond" contract:
     ///////////////////////////
     const tavern = await deployDiamond(
-        'LoudTavern',
+        'Tavern',
         [cutFacet, loupeFacet, ownershipFacet, baseQuest,questTools],
         c.owner,
     );
     c.tavern = tavern;
-    console.log(`LoudTavern deployed at: ${tavern.address.toLowerCase()}`);
+    console.log(`Tavern deployed at: ${tavern.address.toLowerCase()}`);
 
 
     return c;

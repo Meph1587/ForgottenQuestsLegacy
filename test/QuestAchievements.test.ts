@@ -93,8 +93,16 @@ describe('QuestAchievements', function () {
                 939393,
                 431000
             )).to.not.be.reverted;
+            
+            expect(await rewards.tokenURI(1)).to.not.be.eq("");
 
-           expect(await rewards.tokenURI(1)).to.not.be.eq("");
+            
+            // check for read consistency
+            let first = await rewards.tokenURI(1);
+            chain.mineBlocks(2)
+            expect(await rewards.tokenURI(1)).to.be.eq(first);
+
+           console.log(await rewards.tokenURI(1))
 
             await expect(rewards.connect(happyPirate).mint(
                 happyPirateAddress,

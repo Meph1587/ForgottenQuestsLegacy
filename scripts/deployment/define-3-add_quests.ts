@@ -1,7 +1,7 @@
 
-import {deployContract} from "../helpers/deploy";
-import {diamondAsFacet, getSelectors, FacetCutAction} from "../helpers/diamond";
-import {zeroAddress} from "../helpers/chain";
+import {deployContract} from "../../helpers/deploy";
+import {diamondAsFacet, getSelectors, FacetCutAction} from "../../helpers/diamond";
+import {zeroAddress} from "../../helpers/chain";
 import {DeployConfig} from "./define-0-deploy_config";
 import {Contract} from "ethers";
 
