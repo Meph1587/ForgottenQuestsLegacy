@@ -125,7 +125,8 @@ contract BaseQuest {
             quest.name,
             ts.wizardStorage.getWizardName(quest.wizardId),
             score,
-            duration
+            duration,
+            false
         );
     }
 

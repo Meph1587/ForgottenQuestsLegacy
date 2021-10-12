@@ -80,7 +80,7 @@ describe('QuestAchievements', function () {
 
             await expect(rewards.setMintingAllowance(happyPirateAddress, true)).to.not.be.reverted;
 
-            await expect(rewards.connect(happyPirate).mint(happyPirateAddress,"name","wizard",939393,86400)).to.not.be.reverted;
+            await expect(rewards.connect(happyPirate).mint(happyPirateAddress,"name","wizard",939393,86400,false)).to.not.be.reverted;
 
             expect(await rewards.ownerOf(0)).to.eq(happyPirateAddress);
 
@@ -91,12 +91,13 @@ describe('QuestAchievements', function () {
                 "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
                 "Archmage Orpheus of the Quantum Shadow",
                 939393,
-                431000
+                431000,
+                false
             )).to.not.be.reverted;
             
             expect(await rewards.tokenURI(1)).to.not.be.eq("");
 
-            
+
             // check for read consistency
             let first = await rewards.tokenURI(1);
             chain.mineBlocks(2)
@@ -109,7 +110,8 @@ describe('QuestAchievements', function () {
                 "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
                 "Archmage Orpheus of the Quantum Shadow",
                 602,
-                431000
+                431000,
+                false
             )).to.not.be.reverted;
 
            expect(await rewards.tokenURI(2)).to.not.be.eq("");
@@ -119,7 +121,8 @@ describe('QuestAchievements', function () {
                 "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
                 "Archmage Orpheus of the Quantum Shadow",
                 190,
-                431000
+                431000,
+                true
             )).to.not.be.reverted;
 
            expect(await rewards.tokenURI(3)).to.not.be.eq("");
@@ -129,7 +132,8 @@ describe('QuestAchievements', function () {
                 "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
                 "Archmage Orpheus of the Quantum Shadow",
                 90,
-                431000
+                431000,
+                true
             )).to.not.be.reverted;
 
            expect(await rewards.tokenURI(4)).to.not.be.eq("");
@@ -138,7 +142,7 @@ describe('QuestAchievements', function () {
 
         it('denies other users to mint', async function () {
             await expect(
-                rewards.connect(happyPirate).mint(happyPirateAddress,"name","wizard",93,86400)
+                rewards.connect(happyPirate).mint(happyPirateAddress,"name","wizard",93,86400, false)
             ).to.be.revertedWith("Not allowed to mint");
         });
     });

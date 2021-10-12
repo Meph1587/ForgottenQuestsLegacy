@@ -355,59 +355,79 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         parts[0] = tokenData[tokenId].name;
 
         if (tokenData[tokenId].score > 1514) {
-            parts[1] = "Legendary";
+            parts[
+                1
+            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
+            parts[2] = "Legendary";
         } else if (tokenData[tokenId].score > 601) {
-            parts[1] = "Epic";
+            parts[
+                1
+            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
+            parts[2] = "Epic";
         } else if (tokenData[tokenId].score > 179) {
-            parts[1] = "Hard";
+            parts[
+                1
+            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
+            parts[2] = "Hard";
         } else {
-            parts[1] = "Easy";
+            parts[
+                1
+            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
+            parts[2] = "Easy";
         }
 
-        parts[2] = tokenData[tokenId].wizard;
+        parts[3] = tokenData[tokenId].wizard;
 
-        parts[3] = toString(tokenData[tokenId].score);
+        parts[4] = toString(tokenData[tokenId].score);
 
-        parts[4] = toString(tokenData[tokenId].duration / 86400);
+        parts[5] = toString(tokenData[tokenId].duration / 86400);
 
         string memory symbol;
         if (tokenData[tokenId].symbol == 6) {
             parts[
-                5
+                6
             ] = '<polygon points="225,325 200,365 250,338 225,378 200,338 250,365" class="shape"/>';
             symbol = "Hexagram";
         } else if (tokenData[tokenId].symbol == 5) {
             parts[
-                5
+                6
             ] = '<polygon points="225,325 207,376 253,344 197,344 242,376" class="shape"/>';
             symbol = "Pentagram";
         } else if (tokenData[tokenId].symbol == 4) {
             parts[
-                5
+                6
             ] = '<rect x="200" y="325" width="50" height="50" class="shape"/>';
             symbol = "Square";
-        } else {
+        } else if (tokenData[tokenId].symbol == 3) {
             parts[
-                5
+                6
             ] = '<polygon points="225,324 200,368 250,368" class="shape"/>';
             symbol = "Triangle";
+        } else if (tokenData[tokenId].symbol == 2) {
+            parts[
+                6
+            ] = '<polygon points="225,300 225,350 225,325 200,325 250,325" class="shape"/>';
+            symbol = "Cross";
+        } else {
+            parts[6] = '<circle cx="225" cy="325" r="25" class="shape"/>';
+            symbol = "Circle";
         }
 
         string memory output = string(
             abi.encodePacked(
-                '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 450 450"><style>.base{fill:white;font-family:serif;font-size:14px;} .gray{fill:grey} .shape{fill:black;stroke:white;stroke-width:2}</style><rect width="100%" height="100%" fill="black" /><text x="50%" y="10" class="base" text-anchor="middle">o }={}==={}====={}==={}===][==||==][==={}==={}====={}==={}={ o</text><text x="50%" y="55" class="base" text-anchor="middle">',
+                '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 450 450"><style>.base{fill:white;font-family:serif;font-size:14px;} .gray{fill:grey} .shape{fill:black;stroke:white;stroke-width:2}</style><rect width="100%" height="100%" fill="black" /><text x="50%" y="12" class="base" text-anchor="middle">o }={}==={}====={}==={}===][==||==][==={}==={}====={}==={}={ o</text><text x="50%" y="55" class="base" text-anchor="middle">',
                 parts[0],
-                '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ',
                 parts[1],
-                '</text><text text-anchor="middle" x="50%" y="120" class="base">=================================================</text><text text-anchor="middle" x="50%" y="150" class="base"> Acomplished by Wizard: </text><text text-anchor="middle" x="50%" y="175" class="base gray"> ',
                 parts[2],
-                '</text><text text-anchor="middle" x="50%" y="225" class="base"> Score: ',
+                '</text><text text-anchor="middle" x="50%" y="120" class="base">=================================================</text><text text-anchor="middle" x="50%" y="150" class="base"> Acomplished by Wizard: </text><text text-anchor="middle" x="50%" y="175" class="base gray"> ',
                 parts[3],
-                '</text><text text-anchor="middle" x="50%" y="250" class="base"> Duration: ',
+                '</text><text text-anchor="middle" x="50%" y="225" class="base"> Score: ',
                 parts[4],
-                " days </text>",
+                '</text><text text-anchor="middle" x="50%" y="250" class="base"> Duration: ',
                 parts[5],
-                '<text x="15" y="73" class="base" transform="rotate(90 40,40)">}==={}====={}==={} {}==={}====={}==={} {}==={}====={}==={</text><text x="15" y="14" class="base" transform="rotate(90 225,225)">}==={}====={}==={} {}==={}====={}==={} {}==={}====={}==={</text><text x="50%" y="441" class="base" text-anchor="middle">o }={}==={}====={}==={}===][==||==][==={}==={}====={}==={}={ o</text></svg>'
+                " days </text>",
+                parts[6],
+                '<text x="17" y="73" class="base" transform="rotate(90 40,40)">}==={}====={}==={} {}==={}====={}==={} {}==={}====={}==={</text><text x="17" y="14" class="base" transform="rotate(90 225,225)">}==={}====={}==={} {}==={}====={}==={} {}==={}====={}==={</text><text x="50%" y="443" class="base" text-anchor="middle">o }={}==={}====={}==={}===][==||==][==={}==={}====={}==={}={ o</text></svg>'
             )
         );
 
@@ -423,7 +443,7 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
                                     toString(tokenId),
                                     '", "description": "Quest Achievements are records of heroic adventures acomplished by Wiarrds.", "attributes": [{"trait_type": "difficulty", "value": "',
                                     parts[1],
-                                    '"},{"trait_type": "symbol", "value": " ',
+                                    '"},{"trait_type": "symbol", "value": "',
                                     symbol,
                                     '"}], "image": "data:image/svg+xml;base64,',
                                     Base64.encode(bytes(output)),
@@ -441,19 +461,24 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         string memory name,
         string memory wizard,
         uint256 score,
-        uint256 duration
+        uint256 duration,
+        bool isLoreQuest
     ) public onlyMinter {
         uint256 newTokenId = totalSupply();
         uint256 random = random(newTokenId) % 100;
         uint8 symbol;
-        if (random >= 90) {
-            symbol = 6;
-        } else if (random >= 70) {
-            symbol = 5;
-        } else if (random >= 40) {
-            symbol = 4;
-        } else {
+        if (newTokenId <= 19) {
+            symbol = 1;
+        } else if (isLoreQuest) {
+            symbol = 2;
+        } else if (random < 40) {
             symbol = 3;
+        } else if (random < 70) {
+            symbol = 4;
+        } else if (random < 90) {
+            symbol = 5;
+        } else {
+            symbol = 6;
         }
 
         tokenData[newTokenId] = TokenData({

@@ -178,7 +178,8 @@ contract LoreQuest {
             quest.name,
             ts.wizardStorage.getWizardName(quest.wizardId),
             score,
-            duration
+            duration,
+            true
         );
     }
 
