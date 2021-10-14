@@ -16,7 +16,7 @@ export async function deployConfig(owner:string): Promise<DeployConfig> {
 
     const wethAddr = '0x11398bf5967cd37bc2482e0f4e111cb93d230b05'
 
-    const wizardsAddr = '0x11398bf5967cd37bc2482e0f4e111cb93d230b05'
+    const wizardsAddr = '0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42'
 
 
     let account;

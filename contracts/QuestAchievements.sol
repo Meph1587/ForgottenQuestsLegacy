@@ -442,7 +442,7 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
                                     '{"name": "Quest #',
                                     toString(tokenId),
                                     '", "description": "Quest Achievements are records of heroic adventures acomplished by Wiarrds.", "attributes": [{"trait_type": "difficulty", "value": "',
-                                    parts[1],
+                                    parts[2],
                                     '"},{"trait_type": "symbol", "value": "',
                                     symbol,
                                     '"}], "image": "data:image/svg+xml;base64,',

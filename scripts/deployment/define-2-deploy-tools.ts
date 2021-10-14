@@ -15,7 +15,7 @@ export async function deployTools(c: DeployConfig): Promise<DeployConfig> {
     console.log(`npx hardhat verify --network rinkeby ${questAchievements.address}`)
     
 
-    console.log(`\n --- DEPLOY TAVERN ---`);
+    console.log(`\n --- DEPLOY TOOLS ---`);
     
 
     const questTools = await deployContract('QuestTools') as QuestTools;
