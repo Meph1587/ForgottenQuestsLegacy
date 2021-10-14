@@ -65,19 +65,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "c__0x65ffe135",
-        "type": "bytes32"
-      }
-    ],
-    "name": "c_0x65ffe135",
-    "outputs": [],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "getGrimoire",
     "outputs": [

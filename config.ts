@@ -40,7 +40,7 @@ export const networks: NetworksUserConfig = {
         gas: 'auto',
         hardfork: 'london', 
         initialBaseFeePerGas: 1,
-        gasPrice: 20000000000, // 1 gwei
+        gasPrice: 20000000000, // 2 gwei
         gasMultiplier: 1.5,
     },
 
@@ -49,6 +49,7 @@ export const networks: NetworksUserConfig = {
         gas: 'auto',
         hardfork: 'london', 
         url: process.env.RINEKBY_API,
+        gasPrice: 20000000000, // 2 gwei
     },
     hardhat: {
         accounts: defaultAccount,

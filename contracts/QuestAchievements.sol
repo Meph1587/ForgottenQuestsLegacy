@@ -362,17 +362,17 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         } else if (tokenData[tokenId].score > 601) {
             parts[
                 1
-            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
+            ] = '</text><style>.diff {fill: #c14fdd}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
             parts[2] = "Epic";
         } else if (tokenData[tokenId].score > 179) {
             parts[
                 1
-            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
+            ] = '</text><style>.diff {fill: #3e58dd}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
             parts[2] = "Hard";
         } else {
             parts[
                 1
-            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
+            ] = '</text><style>.diff {fill: #b7b7b7}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
             parts[2] = "Easy";
         }
 
