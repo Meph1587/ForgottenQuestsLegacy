@@ -1,11 +1,9 @@
 import { ethers } from 'hardhat';
 import { BigNumber, Contract, Signer } from 'ethers';
-import * as helpers from '../helpers/accounts';
 import { expect } from 'chai';
 import { BaseQuest, ERC20Mock, WizardsMock,QuestTools, QuestAchievements} from '../typechain';
 import * as chain from '../helpers/chain';
 import * as deploy from '../helpers/deploy';
-import {diamondAsFacet} from "../helpers/diamond";
 
 describe('BaseQuest', function () {
 
@@ -33,22 +31,12 @@ describe('BaseQuest', function () {
         await wizards.mint(userAddress, Mephistopheles);
         await prepareAccount(user, startBalance)
 
-        const cutFacet = await deploy.deployContract('DiamondCutFacet');
-        const loupeFacet = await deploy.deployContract('DiamondLoupeFacet');
-        const ownershipFacet = await deploy.deployContract('OwnershipFacet');
-        let questTools = await deploy.deployContract('QuestTools');
-        let baseQuest = await deploy.deployContract('BaseQuest')
-        const diamond = await deploy.deployDiamond(
-            'Tavern',
-            [cutFacet, loupeFacet, ownershipFacet, questTools, baseQuest],
-            userAddress,
-        );
 
-        quests = (await diamondAsFacet(diamond, 'BaseQuest')) as BaseQuest;
-
-        await quests.initBaseQuests(diamond.address, feeReceiverAddress, rewardsNFT.address);
+        quests = await deploy.deployContract('BaseQuest') as BaseQuest;
         
-        tools = (await diamondAsFacet(diamond, 'QuestTools')) as QuestTools;
+        tools = await deploy.deployContract('QuestTools') as QuestTools;
+
+        await quests.initBaseQuests(tools.address, feeReceiverAddress, rewardsNFT.address);
         
         await tools.initialize(weth.address, storageAddress, wizards.address);
 

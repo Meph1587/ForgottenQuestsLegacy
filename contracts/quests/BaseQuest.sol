@@ -5,7 +5,6 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../libraries/LibTavernStorage.sol";
 import "./QuestAchievements.sol";
 import "./QuestTools.sol";
 
@@ -36,14 +35,14 @@ contract BaseQuest {
     uint256 public nextBaseQuestAvailableAt;
 
     function initBaseQuests(
-        address _tavern,
+        address _questTools,
         address _baseQuestFeeAddress,
         address _questAchievements
     ) public {
         baseQuestFeeAddress = _baseQuestFeeAddress;
         questAchievements = QuestAchievements(_questAchievements);
         nextBaseQuestAvailableAt = block.timestamp;
-        qt = QuestTools(_tavern);
+        qt = QuestTools(_questTools);
     }
 
     // generate a new quest using random affinity
@@ -71,19 +70,16 @@ contract BaseQuest {
             positive_affinities: pos_aff,
             negative_affinities: neg_aff,
             ends_at: 0,
-            expires_at: block.timestamp + LibTavernStorage.BASE_EXPIRATION
+            expires_at: block.timestamp + qt.BASE_EXPIRATION()
         });
         questLog.push(quest);
-        nextBaseQuestAvailableAt = block.timestamp.add(
-            LibTavernStorage.COOLDOWN
-        );
+        nextBaseQuestAvailableAt = block.timestamp.add(qt.COOLDOWN());
     }
 
     function acceptBaseQuest(uint256 id, uint256 wizardId) public {
         Quest storage quest = questLog[id];
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
 
-        ts.wizards.transferFrom(msg.sender, address(this), wizardId);
+        qt.getWizards().transferFrom(msg.sender, address(this), wizardId);
 
         require(quest.accepted_by == address(0), "Quest accepted already");
         require(quest.expires_at > block.timestamp, "Quest expired");
@@ -103,14 +99,13 @@ contract BaseQuest {
     // allow to withdraw wizard after quest duration elapsed
     function completeBaseQuest(uint256 id) public {
         Quest storage quest = questLog[id];
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
         require(
             quest.accepted_by == msg.sender,
             "Only wizard owner can complete"
         );
         require(quest.ends_at < block.timestamp, "Quest not ended yet");
-        ts.wizards.approve(msg.sender, quest.wizardId);
-        ts.wizards.transferFrom(address(this), msg.sender, quest.wizardId);
+        qt.getWizards().approve(msg.sender, quest.wizardId);
+        qt.getWizards().transferFrom(address(this), msg.sender, quest.wizardId);
 
         //mint reward NFT to user
         uint256 duration = quest.ends_at - quest.accepted_at;
@@ -123,7 +118,7 @@ contract BaseQuest {
         questAchievements.mint(
             msg.sender,
             quest.name,
-            ts.wizardStorage.getWizardName(quest.wizardId),
+            qt.getGrimoire().getWizardName(quest.wizardId),
             score,
             duration,
             false
@@ -132,7 +127,6 @@ contract BaseQuest {
 
     function abandonBaseQuest(uint256 id) public {
         Quest storage quest = questLog[id];
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
         require(
             quest.accepted_by == msg.sender,
             "Only wizard owner can abandon"
@@ -140,15 +134,14 @@ contract BaseQuest {
         require(quest.ends_at > block.timestamp, "Quest ended");
 
         // pay penalty fee based o how early it is abondoned
-        uint256 feeAmount = LibTavernStorage
-            .BASE_FEE
+        uint256 feeAmount = qt
+            .BASE_FEE()
             .mul(block.timestamp.sub(quest.accepted_at))
             .div(quest.ends_at.sub(quest.accepted_at));
 
-        ts.weth.transferFrom(msg.sender, baseQuestFeeAddress, feeAmount);
-
-        ts.wizards.approve(msg.sender, quest.wizardId);
-        ts.wizards.transferFrom(address(this), msg.sender, quest.wizardId);
+        qt.getWeth().transferFrom(msg.sender, baseQuestFeeAddress, feeAmount);
+        qt.getWizards().approve(msg.sender, quest.wizardId);
+        qt.getWizards().transferFrom(address(this), msg.sender, quest.wizardId);
     }
 
     function getBaseQuest(uint256 id) public view returns (Quest memory) {

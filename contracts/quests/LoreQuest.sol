@@ -5,7 +5,6 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../libraries/LibTavernStorage.sol";
 import "./QuestAchievements.sol";
 import "./QuestTools.sol";
 
@@ -49,7 +48,7 @@ contract LoreQuest {
     address public loreQuestFeeAddress;
 
     function initLoreQuests(
-        address _tavern,
+        address _questTools,
         address _loreQuestFeeAddress,
         address _baseQuestAchievements
     ) public {
@@ -58,7 +57,7 @@ contract LoreQuest {
         nextLoreQuestAvailableAt = block.timestamp;
         questMaster = msg.sender;
         canMakeQuest[msg.sender] = true;
-        qt = QuestTools(_tavern);
+        qt = QuestTools(_questTools);
     }
 
     function setCanMakeQuest(address addr, bool newValue) public {
@@ -104,7 +103,7 @@ contract LoreQuest {
             negative_affinities: neg_aff,
             name: _name,
             ends_at: 0,
-            expires_at: block.timestamp + LibTavernStorage.BASE_EXPIRATION,
+            expires_at: block.timestamp + qt.BASE_EXPIRATION(),
             rewardNFT: _rewardNFT,
             nftId: _nftId,
             entryFee: _entryFee,
@@ -118,10 +117,13 @@ contract LoreQuest {
 
     function acceptLoreQuest(uint256 id, uint256 wizardId) public {
         Quest storage quest = questLog[id];
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
 
         if (quest.entryFee != 0) {
-            ts.weth.transferFrom(msg.sender, quest.creator, quest.entryFee);
+            qt.getWeth().transferFrom(
+                msg.sender,
+                quest.creator,
+                quest.entryFee
+            );
         }
 
         require(
@@ -129,7 +131,7 @@ contract LoreQuest {
             "Wizard does not have trait"
         );
 
-        ts.wizards.transferFrom(msg.sender, address(this), wizardId);
+        qt.getWizards().transferFrom(msg.sender, address(this), wizardId);
 
         require(quest.accepted_by == address(0), "Quest accepted already");
         require(quest.expires_at > block.timestamp, "Quest expired");
@@ -149,14 +151,14 @@ contract LoreQuest {
     // allow to withdraw wizard after quest duration elapsed
     function completeLoreQuest(uint256 id) public {
         Quest storage quest = questLog[id];
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
+
         require(
             quest.accepted_by == msg.sender,
             "Only wizard owner can complete"
         );
         require(quest.ends_at < block.timestamp, "Quest not ended yet");
-        ts.wizards.approve(msg.sender, quest.wizardId);
-        ts.wizards.transferFrom(address(this), msg.sender, quest.wizardId);
+        qt.getWizards().approve(msg.sender, quest.wizardId);
+        qt.getWizards().transferFrom(address(this), msg.sender, quest.wizardId);
 
         ERC721(quest.rewardNFT).approve(msg.sender, quest.nftId);
         ERC721(quest.rewardNFT).transferFrom(
@@ -176,7 +178,7 @@ contract LoreQuest {
         baseQuestAchievements.mint(
             msg.sender,
             quest.name,
-            ts.wizardStorage.getWizardName(quest.wizardId),
+            qt.getGrimoire().getWizardName(quest.wizardId),
             score,
             duration,
             true
@@ -185,7 +187,7 @@ contract LoreQuest {
 
     function abandonLoreQuest(uint256 id) public {
         Quest storage quest = questLog[id];
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
+
         require(
             quest.accepted_by == msg.sender,
             "Only wizard owner can abandon"
@@ -193,15 +195,15 @@ contract LoreQuest {
         require(quest.ends_at > block.timestamp, "Quest ended");
 
         // pay penalty fee based o how early it is abondoned
-        uint256 feeAmount = LibTavernStorage
-            .BASE_FEE
+        uint256 feeAmount = qt
+            .BASE_FEE()
             .mul(block.timestamp - quest.accepted_at)
             .div(quest.ends_at - quest.accepted_at);
 
-        ts.weth.transferFrom(msg.sender, loreQuestFeeAddress, feeAmount);
+        qt.getWeth().transferFrom(msg.sender, loreQuestFeeAddress, feeAmount);
 
-        ts.wizards.approve(msg.sender, quest.wizardId);
-        ts.wizards.transferFrom(address(this), msg.sender, quest.wizardId);
+        qt.getWizards().approve(msg.sender, quest.wizardId);
+        qt.getWizards().transferFrom(address(this), msg.sender, quest.wizardId);
     }
 
     function getLoreQuest(uint256 id) public view returns (Quest memory) {
