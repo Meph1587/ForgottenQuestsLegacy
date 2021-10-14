@@ -48,6 +48,7 @@ describe('Quest Tool', function () {
             expect(await tools.getWeth()).to.be.equal(chain.testAddress);
             expect(await tools.getWizards()).to.be.equal(chain.testAddress);
             expect(await tools.sqrt(1)).to.be.equal(1);
+            expect(await tools.sqrt(0)).to.be.equal(0);
             await expect(
                 tools.initialize(chain.zeroAddress, storageAddress, chain.testAddress)
             ).to.be.revertedWith("WETH must not be 0x0");
