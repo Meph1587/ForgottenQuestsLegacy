@@ -6,14 +6,25 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "wizard-storage/contracts/Grimoire.sol";
-import "../libraries/LibOwnership.sol";
-import "../libraries/LibTavernStorage.sol";
 
 contract QuestTools {
     using SafeMath for uint256;
 
+    uint256 public constant BASE_EXPIRATION = 604800; // 1 week
+    uint256 public constant BASE_FEE = 20**16; //0.02 ETH
+    uint256 public constant BASE_DURATION = 1209600; //1209600; // 2 weeks
+    uint256 public constant TIME_ADJUSTMENT = 86400; //86400; // 1 day
+    uint256 public constant COOLDOWN = 21600; //21600; //6 hours
+
     // a big one
     uint256 immutable BONE = uint256(10**18);
+
+    bytes32 constant STORAGE_POSITION = keccak256("abrahadabra");
+
+    bool initialized;
+    Grimoire wizardStorage;
+    ERC721 wizards;
+    ERC20 weth;
 
     // executed only once
     function initialize(
@@ -23,28 +34,25 @@ contract QuestTools {
     ) public {
         require(_weth != address(0), "WETH must not be 0x0");
 
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
+        require(!initialized, "Tavern: already initialized");
 
-        require(!ts.initialized, "Tavern: already initialized");
-        LibOwnership.enforceIsContractOwner();
+        initialized = true;
 
-        ts.initialized = true;
-
-        ts.weth = ERC20(_weth);
-        ts.wizardStorage = Grimoire(_wizardStorage);
-        ts.wizards = ERC721(_wizards);
+        weth = ERC20(_weth);
+        wizardStorage = Grimoire(_wizardStorage);
+        wizards = ERC721(_wizards);
     }
 
-    function getWeth() public view returns (address) {
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
-
-        return address(ts.weth);
+    function getWeth() public view returns (ERC20) {
+        return weth;
     }
 
-    function getWizards() public view returns (address) {
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
+    function getWizards() public view returns (ERC721) {
+        return wizards;
+    }
 
-        return address(ts.wizards);
+    function getGrimoire() public view returns (Grimoire) {
+        return wizardStorage;
     }
 
     function getRandomTrait(uint256 nonce) public view returns (uint16) {
@@ -83,9 +91,7 @@ contract QuestTools {
         uint256 nonce,
         uint16[5] memory traitIds
     ) public view returns (uint16) {
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
-
-        uint16[] memory affinities = ts.wizardStorage.getAllTraitsAffinities(
+        uint16[] memory affinities = wizardStorage.getAllTraitsAffinities(
             traitIds
         );
 
@@ -125,10 +131,10 @@ contract QuestTools {
             return true;
         }
 
-        Grimoire ws = LibTavernStorage.tavernStorage().wizardStorage;
         for (uint8 i = 0; i < traitIds.length; i++) {
             if (
-                ws.wizardHasTrait(wizardId, traitIds[i]) && traitIds[i] != 7777
+                wizardStorage.wizardHasTrait(wizardId, traitIds[i]) &&
+                traitIds[i] != 7777
             ) {
                 return true;
             }
@@ -140,14 +146,13 @@ contract QuestTools {
         uint16[2] memory positiveAffinities,
         uint16[2] memory negativeAffinities
     ) public view returns (uint256) {
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
         uint256 scorePositive = uint256(
-            ts.wizardStorage.getAffinityOccurrences(positiveAffinities[0])
-        ).add(ts.wizardStorage.getAffinityOccurrences(positiveAffinities[1]));
+            wizardStorage.getAffinityOccurrences(positiveAffinities[0])
+        ).add(wizardStorage.getAffinityOccurrences(positiveAffinities[1]));
 
         uint256 scoreNegative = uint256(
-            ts.wizardStorage.getAffinityOccurrences(negativeAffinities[0])
-        ).add(ts.wizardStorage.getAffinityOccurrences(negativeAffinities[1]));
+            wizardStorage.getAffinityOccurrences(negativeAffinities[0])
+        ).add(wizardStorage.getAffinityOccurrences(negativeAffinities[1]));
 
         uint256 score = sqrt(
             scoreNegative.mul(BONE.mul(100000).div(scorePositive)).div(BONE)
@@ -161,14 +166,12 @@ contract QuestTools {
         uint16[2] memory pos_affinities,
         uint16[2] memory neg_affinities
     ) public view returns (uint256) {
-        LibTavernStorage.Storage storage ts = LibTavernStorage.tavernStorage();
-
         require(
-            ts.wizardStorage.hasTraitsStored(wizardId),
+            wizardStorage.hasTraitsStored(wizardId),
             "Wizard does not have traits stored"
         );
 
-        uint16[] memory wizAffinities = ts.wizardStorage.getWizardAffinities(
+        uint16[] memory wizAffinities = wizardStorage.getWizardAffinities(
             wizardId
         );
 
@@ -203,9 +206,9 @@ contract QuestTools {
         // reduce duration by 2 days for every positive affinity
         // increases duration by 2 days for every negative affinity
         return
-            LibTavernStorage.BASE_DURATION -
-            (affinityCountPositive).mul(LibTavernStorage.TIME_ADJUSTMENT) +
-            (affinityCountNegative).mul(LibTavernStorage.TIME_ADJUSTMENT);
+            BASE_DURATION -
+            (affinityCountPositive).mul(TIME_ADJUSTMENT) +
+            (affinityCountNegative).mul(TIME_ADJUSTMENT);
     }
 
     // babylonian method (https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method)

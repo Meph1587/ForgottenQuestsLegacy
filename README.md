@@ -20,13 +20,6 @@ There will be many types of quests each using different metrics to define what w
 
 More quests will be added later on and a template will be provided for other developers to build their own quest types.
 
-## A few technical details
-
-The ForgottenQuests framework uses the EIP-2535 Diamond Standard. This is a novel proxy mechanism that allows to have a single entry-point contract that can forward transactions to a virtually unlimited number of other contracts (so long as all function identifiers of those contracts are unique).  
-This allows each quest type to be its own contract an part of a fully upgradable system. New quest types can be added to the Diamond at will and existing quest contracts can be updated or even removed.  
-A set of tooling contracts will be added as well to make the development of new quests as seamless as possible.
-The Diamond contract itself will be controlled by an multisig account owned by the development team. This is to allow for at least some quality and security control of new quests that want to be added. The ownership of the Diamond can be passed over to a more decentralized body if the project grows enough to make such a transition feasible or even required.
-
 ## Base Quests
 
 In the most basic form of a quest, the ‘BaseQuest’, the contract allows user to generate a new quest every 10 hours. The duration of the quest is determined by the wizard’s alignment to a set of 4 affinities set randomly during the quest creation. 2 out of the 4 are “positive affinities” and the other 2 are “negative affinities”. For a wizard to take the quest it needs to have at least 1 of the positive affinities. The duration if the lock is then calculated as follows:  

@@ -3,8 +3,8 @@ pragma solidity 0.8.7;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../libraries/stringsutils.sol";
-import "../libraries/Base64.sol";
+import "./libraries/stringsutils.sol";
+import "./libraries/Base64.sol";
 
 contract QuestAchievements is ERC721Enumerable, Ownable {
     using stringsutils for string;
@@ -465,17 +465,17 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         bool isLoreQuest
     ) public onlyMinter {
         uint256 newTokenId = totalSupply();
-        uint256 random = random(newTokenId) % 100;
+        uint256 rand = random(newTokenId) % 100;
         uint8 symbol;
         if (newTokenId <= 19) {
             symbol = 1;
         } else if (isLoreQuest) {
             symbol = 2;
-        } else if (random < 40) {
+        } else if (rand < 40) {
             symbol = 3;
-        } else if (random < 70) {
+        } else if (rand < 70) {
             symbol = 4;
-        } else if (random < 90) {
+        } else if (rand < 90) {
             symbol = 5;
         } else {
             symbol = 6;

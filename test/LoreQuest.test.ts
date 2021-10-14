@@ -1,11 +1,9 @@
 import { ethers } from 'hardhat';
 import { BigNumber, Contract, Signer } from 'ethers';
-import * as helpers from '../helpers/accounts';
 import { expect } from 'chai';
 import { LoreQuest, ERC20Mock, WizardsMock,QuestTools, QuestAchievements} from '../typechain';
 import * as chain from '../helpers/chain';
 import * as deploy from '../helpers/deploy';
-import {diamondAsFacet} from "../helpers/diamond";
 
 describe('LoreQuest', function () {
 
@@ -40,24 +38,12 @@ describe('LoreQuest', function () {
         await wizards.mint(userAddress, SacredKeyMaster);
         await wizards.mint(userAddress, ColorMaster);
         await prepareAccount(user, startBalance)
+      
 
-        const cutFacet = await deploy.deployContract('DiamondCutFacet');
-        const loupeFacet = await deploy.deployContract('DiamondLoupeFacet');
-        const ownershipFacet = await deploy.deployContract('OwnershipFacet');
-        let questTools = await deploy.deployContract('QuestTools');
-        let baseQuest = await deploy.deployContract('LoreQuest')
-        const diamond = await deploy.deployDiamond(
-            'Tavern',
-            [cutFacet, loupeFacet, ownershipFacet, questTools, baseQuest],
-            userAddress,
-        );
+        quests = await deploy.deployContract('LoreQuest') as LoreQuest;
+        tools = await deploy.deployContract('QuestTools')as QuestTools;
 
-        quests = (await diamondAsFacet(diamond, 'LoreQuest')) as LoreQuest;
-
-        await quests.initLoreQuests(diamond.address, feeReceiverAddress, rewardsNFT.address);
-        
-        tools = (await diamondAsFacet(diamond, 'QuestTools')) as QuestTools;
-        
+        await quests.initialize(tools.address, feeReceiverAddress, rewardsNFT.address);
         await tools.initialize(weth.address, storageAddress, wizards.address);
 
     });
@@ -72,13 +58,16 @@ describe('LoreQuest', function () {
     });
 
     describe('General tests', function () {
-        it('should be deployed', async function () {
+        it('general checks', async function () {
             expect(quests.address).to.not.equal(0);
             expect(await quests.loreQuestFeeAddress()).to.be.equal(feeReceiverAddress);
             expect(await quests.baseQuestAchievements()).to.be.equal(rewardsNFT.address);
             expect(await quests.getNrOfLoreQuests()).to.be.equal(0);
             expect(await quests.questMaster()).to.be.equal(userAddress);
             expect(await quests.canMakeQuest(userAddress)).to.be.true;
+            await expect(
+                quests.initialize(chain.testAddress, chain.testAddress, chain.testAddress)
+            ).to.be.revertedWith("Already Initialized")
         });
 
         it('can set quest master', async function () {

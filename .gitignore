@@ -1,5 +1,6 @@
 .env
 typechain/
+.DS_Store
 
 
 # Logs

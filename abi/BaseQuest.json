@@ -1,0 +1,207 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "abandonBaseQuest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wizardId",
+        "type": "uint256"
+      }
+    ],
+    "name": "acceptBaseQuest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "baseQuestFeeAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x8eb9a093",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x8eb9a093",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "completeBaseQuest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "getBaseQuest",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "accepted_by",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "accepted_at",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "wizardId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint16[2]",
+            "name": "positive_affinities",
+            "type": "uint16[2]"
+          },
+          {
+            "internalType": "uint16[2]",
+            "name": "negative_affinities",
+            "type": "uint16[2]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "ends_at",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expires_at",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct BaseQuest.Quest",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getNrOfBaseQuests",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_questTools",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_baseQuestFeeAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_questAchievements",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "newBaseQuest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nextBaseQuestAvailableAt",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "questAchievements",
+    "outputs": [
+      {
+        "internalType": "contract QuestAchievements",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

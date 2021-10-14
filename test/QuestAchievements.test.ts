@@ -2,10 +2,9 @@ import { ethers } from 'hardhat';
 import { BigNumber, Contract, Signer } from 'ethers';
 import * as helpers from '../helpers/accounts';
 import { expect } from 'chai';
-import { BaseQuest, ERC20Mock, WizardsMock,QuestTools, QuestAchievements, Grimoire} from '../typechain';
+import { BaseQuest, ERC20Mock, WizardsMock,QuestTools, QuestAchievements} from '../typechain';
 import * as chain from '../helpers/chain';
 import * as deploy from '../helpers/deploy';
-import {diamondAsFacet} from "../helpers/diamond";
 
 describe('QuestAchievements', function () {
 
@@ -103,7 +102,6 @@ describe('QuestAchievements', function () {
             chain.mineBlocks(2)
             expect(await rewards.tokenURI(1)).to.be.eq(first);
 
-           console.log(await rewards.tokenURI(1))
 
             await expect(rewards.connect(happyPirate).mint(
                 happyPirateAddress,
@@ -126,17 +124,20 @@ describe('QuestAchievements', function () {
             )).to.not.be.reverted;
 
            expect(await rewards.tokenURI(3)).to.not.be.eq("");
+            
+            for(let i = 4; i<30; i++){
+                await expect(rewards.connect(happyPirate).mint(
+                    happyPirateAddress,
+                    "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
+                    "Archmage Orpheus of the Quantum Shadow",
+                    90,
+                    431000,
+                    i%3==0
+                )).to.not.be.reverted;
 
-            await expect(rewards.connect(happyPirate).mint(
-                happyPirateAddress,
-                "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
-                "Archmage Orpheus of the Quantum Shadow",
-                90,
-                431000,
-                true
-            )).to.not.be.reverted;
+                expect(await rewards.tokenURI(i)).to.not.be.eq("");
 
-           expect(await rewards.tokenURI(4)).to.not.be.eq("");
+            }
         
         });
 
