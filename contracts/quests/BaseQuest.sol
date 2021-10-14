@@ -5,8 +5,8 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "./QuestAchievements.sol";
-import "./QuestTools.sol";
+import "../QuestAchievements.sol";
+import "../QuestTools.sol";
 
 contract BaseQuest {
     using SafeMath for uint16;
@@ -34,11 +34,12 @@ contract BaseQuest {
 
     uint256 public nextBaseQuestAvailableAt;
 
-    function initBaseQuests(
+    function initialize(
         address _questTools,
         address _baseQuestFeeAddress,
         address _questAchievements
     ) public {
+        require(nextBaseQuestAvailableAt == 0, "Already Initialized");
         baseQuestFeeAddress = _baseQuestFeeAddress;
         questAchievements = QuestAchievements(_questAchievements);
         nextBaseQuestAvailableAt = block.timestamp;

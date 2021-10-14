@@ -36,7 +36,7 @@ describe('BaseQuest', function () {
         
         tools = await deploy.deployContract('QuestTools') as QuestTools;
 
-        await quests.initBaseQuests(tools.address, feeReceiverAddress, rewardsNFT.address);
+        await quests.initialize(tools.address, feeReceiverAddress, rewardsNFT.address);
         
         await tools.initialize(weth.address, storageAddress, wizards.address);
 
@@ -56,11 +56,14 @@ describe('BaseQuest', function () {
     });
 
     describe('General tests', function () {
-        it('should be deployed', async function () {
+        it('general checks', async function () {
             expect(quests.address).to.not.equal(0);
             expect(await quests.baseQuestFeeAddress()).to.be.equal(feeReceiverAddress);
             expect(await quests.questAchievements()).to.be.equal(rewardsNFT.address);
             expect(await quests.getNrOfBaseQuests()).to.be.equal(0);
+            await expect(
+                quests.initialize(chain.testAddress, chain.testAddress, chain.testAddress)
+            ).to.be.revertedWith("Already Initialized")
         });
 
     });
