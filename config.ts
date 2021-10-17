@@ -60,7 +60,7 @@ export const networks: NetworksUserConfig = {
         gas:'auto',
         forking: {
             url: process.env.RINEKBY_API,
-            enabled: true,
+            enabled: false,
             blockNumber: 9430419, // for rinkeby
         }
     },

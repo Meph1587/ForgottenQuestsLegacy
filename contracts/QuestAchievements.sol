@@ -13,7 +13,7 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         " at The Alchemists Archipelago",
         " at The Salt",
         " at The Red Wizard Keep",
-        " at The Calista's Citadel",
+        " at Calista's Citadel",
         " at The Omega Oxbow",
         " at The Brine",
         " at The Weird House",
@@ -327,6 +327,8 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         uint8 symbol;
     }
 
+    uint8 immutable FIRST_DIMENSION = 15;
+
     mapping(uint256 => TokenData) public tokenData;
     mapping(address => bool) public allowedMinterContracts;
 
@@ -350,11 +352,16 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         override
         returns (string memory)
     {
-        string[14] memory parts;
+        string[7] memory parts;
 
         parts[0] = tokenData[tokenId].name;
 
-        if (tokenData[tokenId].score > 1514) {
+        if (tokenId < FIRST_DIMENSION) {
+            parts[
+                1
+            ] = '</text><style>.diff {fill: gold}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
+            parts[2] = "Unspeakable";
+        } else if (tokenData[tokenId].score > 1514) {
             parts[
                 1
             ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
@@ -362,17 +369,17 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         } else if (tokenData[tokenId].score > 601) {
             parts[
                 1
-            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
+            ] = '</text><style>.diff {fill: #9444f4}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
             parts[2] = "Epic";
         } else if (tokenData[tokenId].score > 179) {
             parts[
                 1
-            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
+            ] = '</text><style>.diff {fill: #2474ff}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
             parts[2] = "Hard";
         } else {
             parts[
                 1
-            ] = '</text><style>.diff {fill: orange}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
+            ] = '</text><style>.diff {fill: gray}</style><text text-anchor="middle" x="50%" y="90" class="diff"> ';
             parts[2] = "Easy";
         }
 
@@ -406,10 +413,10 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         } else if (tokenData[tokenId].symbol == 2) {
             parts[
                 6
-            ] = '<polygon points="225,300 225,350 225,325 200,325 250,325" class="shape"/>';
+            ] = '<polygon points="225,325 225,375 225,350 200,350 250,350 225,350" class="shape"/>';
             symbol = "Cross";
         } else {
-            parts[6] = '<circle cx="225" cy="325" r="25" class="shape"/>';
+            parts[6] = '<circle cx="225" cy="350" r="25" class="shape"/>';
             symbol = "Circle";
         }
 
@@ -467,7 +474,7 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         uint256 newTokenId = totalSupply();
         uint256 rand = random(newTokenId) % 100;
         uint8 symbol;
-        if (newTokenId <= 19) {
+        if (newTokenId < FIRST_DIMENSION) {
             symbol = 1;
         } else if (isLoreQuest) {
             symbol = 2;
