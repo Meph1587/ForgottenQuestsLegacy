@@ -12,8 +12,6 @@ contract LoreQuest {
     using SafeMath for uint16;
     using SafeMath for uint256;
 
-    uint16 MAX_AFFINITY = 340;
-
     address public rewardNFT;
 
     address public feeAddress;

@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "./interfaces/Spells.sol";
 import "wizard-storage/contracts/Grimoire.sol";
 
 contract QuestTools {
@@ -19,16 +20,16 @@ contract QuestTools {
     // a big one
     uint256 immutable BONE = uint256(10**18);
 
-    bytes32 constant STORAGE_POSITION = keccak256("abrahadabra");
-
     bool initialized;
     Grimoire wizardStorage;
     ERC721 wizards;
+    Spells spells;
     ERC20 weth;
 
     // executed only once
     function initialize(
         address _weth,
+        address _spells,
         address _wizardStorage,
         address _wizards
     ) public {
@@ -39,12 +40,17 @@ contract QuestTools {
         initialized = true;
 
         weth = ERC20(_weth);
+        spells = Spells(_spells);
         wizardStorage = Grimoire(_wizardStorage);
         wizards = ERC721(_wizards);
     }
 
     function getWeth() public view returns (ERC20) {
         return weth;
+    }
+
+    function getSpells() public view returns (Spells) {
+        return spells;
     }
 
     function getWizards() public view returns (ERC721) {
@@ -224,4 +230,6 @@ contract QuestTools {
             z = 1;
         }
     }
+
+    function extractFromSVG(string base) public pure returns (string z) {}
 }
