@@ -5739,6 +5739,18 @@ forever-agent@~0.6.1:
   resolved "https://registry.yarnpkg.com/forever-agent/-/forever-agent-0.6.1.tgz#fbc71f0c41adeb37f96c577ad1ed42d8fdacca91"
   integrity sha1-+8cfDEGt6zf5bFd60e1C2P2sypE=
 
+"forgotten-runes@https://github.com/aleb-user/LostGrimoire.git#master":
+  version "1.0.0"
+  resolved "https://github.com/aleb-user/LostGrimoire.git#fe1751826f25a058c6f98fce5cd1eeefbb7991ce"
+  dependencies:
+    bson "^4.4.0"
+    crypto-js "^4.1.1"
+    hardhat-contract-sizer "^2.0.3"
+    keccak256 "^1.0.3"
+    merkletreejs "^0.2.24"
+    ora "^5.3.0"
+    parse-numeric-range "^1.2.0"
+
 form-data@^2.2.0:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-2.5.1.tgz#f2cbec57b5e59e23716e128fe44d4e5dd23895f4"

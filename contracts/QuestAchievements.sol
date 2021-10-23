@@ -131,199 +131,14 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         "Twinkletoes",
         "Black Goat",
         "Abaddon",
-        "Pepo",
-        "Corvin",
-        "Ixar",
-        "Hu",
-        "Victor",
-        "Hongo",
-        "Gwendolin",
-        "Ravana",
-        "Jasper",
-        "Eliphas",
-        "Norix",
-        "Juniper",
-        "Yan",
-        "Kang",
-        "Alice",
-        "Bullock",
-        "Yookoo",
-        "Voidoth",
-        "Willow",
-        "Milo",
-        "Karasu",
-        "Oxnard",
-        "Liliana",
-        "Behemoth",
-        "Brutus",
-        "Jastor",
-        "Elizabeth",
-        "Izible",
-        "Asmodeus",
-        "Lux",
-        "Drusilla",
-        "Talon",
-        "Maia",
-        "Robert",
-        "Lavinia",
-        "Peppy",
-        "Florah",
-        "Ursula",
-        "Eronin",
-        "Adium",
-        "Samuel",
-        "Delilah",
-        "Beyna",
-        "Tundror",
-        "Hothor",
-        "Shivra",
-        "Velorina",
-        "Circe",
-        "Nadeem",
-        "Ramiz",
-        "Hagar",
-        "Lamia",
-        "Isaac",
-        "Lenora",
-        "Artis",
-        "Axel",
-        "Magnus",
-        "Jahid",
-        "Aslan",
-        "Amir",
-        "Eric",
-        "Jerret",
-        "Ozohr",
-        "Zane",
-        "Goliath",
-        "Lumos",
-        "Basil",
-        "Alatar",
-        "Cairon",
-        "Oberon",
-        "Aleister",
-        "David",
-        "Milton",
-        "George",
-        "Hue",
-        "Iluzor",
-        "Devo",
-        "Lucifer",
-        "Squiddly",
-        "Stefan",
-        "Prisma",
-        "Charlie",
-        "Drako",
-        "Edward",
-        "Shukri",
-        "Vorvadoss",
-        "Suc'Naath",
-        "Anubis",
-        "Fidget",
-        "Devon",
-        "Gee",
-        "Dotta",
-        "Virgil",
-        "Ulthar",
-        "Iris",
-        "Kalo",
-        "Aiko",
-        "Soran",
-        "Merlon",
-        "Iprix",
-        "Akron",
-        "Embrose",
-        "Orpheus",
-        "Feng",
-        "Mina",
-        "Remus",
-        "Jadis",
-        "Rixxa",
-        "Ulysse",
-        "Froggy",
-        "Davos",
-        "Larissa",
-        "Uur'lok",
-        "Elmo",
-        "Salvatore",
-        "Oiq",
-        "Huizhong",
-        "Trollin",
-        "Eizo",
-        "Ariadne",
-        "Thana",
-        "Galatea",
-        "Titania",
-        "Sondra",
-        "Astrid",
-        "Asphodel",
-        "Adrienne",
-        "Rodolfo",
-        "Althea",
-        "Calliope",
-        "Lin",
-        "Sonja",
-        "Nixie",
-        "Daphne",
-        "Stag",
-        "Leah",
-        "Kurama",
-        "Celeste",
-        "Diana",
-        "Pumlo",
-        "Alessar",
-        "Faye",
-        "Arabella",
-        "Layla",
-        "Peter",
-        "Ghorhoth",
-        "Takao",
-        "Fallow",
-        "Billy",
-        "Hedgie",
-        "Morfran",
-        "Hydra",
-        "Shabbith-Ka",
-        "Meloogen",
-        "Porto",
-        "Hanataka",
-        "Azathoth",
-        "Jiang",
-        "Rook",
-        "Cullen",
-        "Hank",
-        "Shi",
-        "Jay",
-        "Shu",
-        "Kryll",
-        "Liu",
-        "Ai",
-        "Robin",
-        "Morrow",
-        "Ronald",
-        "Chandler",
-        "Finch",
-        "Bane",
-        "Zevi",
-        "Shizu",
-        "Zolona",
-        "Sturgis",
-        "Ratko",
-        "Amanita",
-        "Suki",
-        "Hecate",
-        "Imeena",
-        "Ivy",
-        "Tumbaj",
-        "Lilith",
-        "Fungi"
+        "Pepo"
     ];
 
     struct TokenData {
         string wizard;
         uint256 score;
         uint256 duration;
-        string name;
+        uint256 randSeed;
         uint8 symbol;
     }
 
@@ -354,7 +169,7 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
     {
         string[7] memory parts;
 
-        parts[0] = tokenData[tokenId].name;
+        parts[0] = getName(tokenId, tokenData[tokenId].randSeed);
 
         if (tokenId < FIRST_DIMENSION) {
             parts[
@@ -465,14 +280,14 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
 
     function mint(
         address to,
-        string memory name,
+        uint256 seed,
         string memory wizard,
         uint256 score,
         uint256 duration,
         bool isLoreQuest
     ) public onlyMinter {
         uint256 newTokenId = totalSupply();
-        uint256 rand = random(newTokenId) % 100;
+        uint256 rand = random(newTokenId, seed) % 100;
         uint8 symbol;
         if (newTokenId < FIRST_DIMENSION) {
             symbol = 1;
@@ -492,20 +307,23 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
             wizard: wizard,
             score: score,
             duration: duration,
-            name: name,
+            randSeed: seed,
             symbol: symbol
         });
         _safeMint(to, newTokenId);
     }
 
-    function getName(uint256 tokenId) public view returns (string memory) {
-        string[3] memory parts;
-        parts[0] = pluck(tokenId, actions);
-        parts[1] = pluck(tokenId, names);
-        parts[2] = pluck(tokenId, locations);
-
+    function getName(uint256 tokenId, uint256 randSeed)
+        public
+        view
+        returns (string memory)
+    {
         string memory output = string(
-            abi.encodePacked(parts[0], parts[1], parts[2])
+            abi.encodePacked(
+                pluck(tokenId, randSeed, actions),
+                pluck(tokenId, randSeed, names),
+                pluck(tokenId, randSeed, locations)
+            )
         );
         return output;
     }
@@ -532,19 +350,20 @@ contract QuestAchievements is ERC721Enumerable, Ownable {
         return string(buffer);
     }
 
-    function random(uint256 input) internal view returns (uint256) {
-        return
-            uint256(
-                keccak256(abi.encodePacked(input, msg.sender, block.timestamp))
-            );
-    }
-
-    function pluck(uint256 tokenId, string[] memory sourceArray)
+    function random(uint256 input, uint256 randSeed)
         internal
         view
-        returns (string memory)
+        returns (uint256)
     {
-        uint256 rand = random(tokenId);
+        return uint256(keccak256(abi.encodePacked(input, randSeed)));
+    }
+
+    function pluck(
+        uint256 tokenId,
+        uint256 randSeed,
+        string[] memory sourceArray
+    ) internal view returns (string memory) {
+        uint256 rand = random(tokenId, randSeed);
         string memory output = sourceArray[rand % sourceArray.length];
 
         return output;

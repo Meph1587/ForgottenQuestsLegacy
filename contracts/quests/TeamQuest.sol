@@ -110,7 +110,7 @@ contract TeamQuest {
             positive_affinities: [pos_aff1, pos_aff2, pos_aff3, pos_aff4],
             negative_affinities: [neg_aff1, neg_aff2, neg_aff3, neg_aff4],
             abandoned: [false, false, false, false],
-            name: baseQuestAchievements.getName(questLog.length),
+            name: "", //baseQuestAchievements.getName(questLog.length),
             ends_at: 0,
             expires_at: block.timestamp + qt.BASE_EXPIRATION().mul(2)
         });
@@ -210,7 +210,7 @@ contract TeamQuest {
 
         baseQuestAchievements.mint(
             msg.sender,
-            quest.name,
+            quest.id,
             qt.getGrimoire().getWizardName(quest.wizardId[slot]),
             score,
             duration,

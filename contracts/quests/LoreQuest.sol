@@ -19,7 +19,6 @@ contract LoreQuest {
     uint256 public nextLoreQuestAvailableAt;
 
     struct Quest {
-        uint256 id;
         address accepted_by;
         uint256 accepted_at;
         uint256 wizardId;
@@ -94,7 +93,6 @@ contract LoreQuest {
             qt.getRandomAffinity(nonce.add(3))
         ];
         Quest memory quest = Quest({
-            id: questLog.length,
             accepted_by: address(0),
             accepted_at: block.timestamp,
             wizardId: 10000,
@@ -176,7 +174,7 @@ contract LoreQuest {
 
         baseQuestAchievements.mint(
             msg.sender,
-            quest.name,
+            quest.wizardId,
             qt.getGrimoire().getWizardName(quest.wizardId),
             score,
             duration,

@@ -70,13 +70,8 @@
         "components": [
           {
             "internalType": "uint256",
-            "name": "id",
+            "name": "randSeed",
             "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
           },
           {
             "internalType": "address",

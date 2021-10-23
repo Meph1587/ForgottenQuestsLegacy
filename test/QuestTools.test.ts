@@ -16,6 +16,7 @@ describe('Quest Tool', function () {
     let Mephistopheles = 1587;
 
     const storageAddress = "0x11398bf5967Cd37BC2482e0f4E111cb93D230B05";
+    const spellsAddress = "0x11398bf5967Cd37BC2482e0f4E111cb93D230B05";
 
 
     let snapshotId: any;
@@ -25,7 +26,7 @@ describe('Quest Tool', function () {
         
         tools = await deploy.deployContract('QuestTools') as QuestTools;
         
-        await tools.initialize(chain.testAddress, storageAddress, chain.testAddress);
+        await tools.initialize(chain.testAddress, storageAddress, chain.testAddress,spellsAddress);
 
         await chain.setTime(await chain.getCurrentUnix());
     });
@@ -50,10 +51,10 @@ describe('Quest Tool', function () {
             expect(await tools.sqrt(1)).to.be.equal(1);
             expect(await tools.sqrt(0)).to.be.equal(0);
             await expect(
-                tools.initialize(chain.zeroAddress, storageAddress, chain.testAddress)
+                tools.initialize(chain.zeroAddress, storageAddress, chain.testAddress,chain.testAddress)
             ).to.be.revertedWith("WETH must not be 0x0");
             await expect(
-                tools.initialize(chain.testAddress, storageAddress, chain.testAddress)
+                tools.initialize(chain.testAddress, storageAddress, chain.testAddress,chain.testAddress)
             ).to.be.revertedWith("Tavern: already initialized");
 
         });
@@ -146,8 +147,8 @@ describe('Quest Tool', function () {
     describe('Get Correct Quest Duration', function () {
         it('return correct responses', async function () {
 
-            let base = 1209600;
-            let adj = 86400;
+            let base = (await tools.BASE_DURATION()).toNumber();
+            let adj = (await tools.TIME_ADJUSTMENT()).toNumber();
 
             // no matches on positive or negative
             expect(await tools.getQuestDuration(Mephistopheles, [1,1],[1,1])).to.eq(base)

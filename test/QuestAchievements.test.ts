@@ -44,8 +44,8 @@ describe('QuestAchievements', function () {
 
     describe('Can get name', function () {
         it('returns random names', async function () {
-            let name1 = await rewards.getName(1);
-            let name2 = await rewards.getName(2);
+            let name1 = await rewards.getName(1, 1);
+            let name2 = await rewards.getName(2, 2);
             expect(name1).to.not.equal(name2);
         });
     });
@@ -79,7 +79,7 @@ describe('QuestAchievements', function () {
 
             await expect(rewards.setMintingAllowance(happyPirateAddress, true)).to.not.be.reverted;
 
-            await expect(rewards.connect(happyPirate).mint(happyPirateAddress,"name","wizard",939393,86400,false)).to.not.be.reverted;
+            await expect(rewards.connect(happyPirate).mint(happyPirateAddress,1,"wizard",939393,86400,false)).to.not.be.reverted;
 
             expect(await rewards.ownerOf(0)).to.eq(happyPirateAddress);
 
@@ -87,7 +87,7 @@ describe('QuestAchievements', function () {
         
             await expect(rewards.connect(happyPirate).mint(
                 happyPirateAddress,
-                "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
+                1,
                 "Archmage Orpheus of the Quantum Shadow",
                 939393,
                 431000,
@@ -105,7 +105,7 @@ describe('QuestAchievements', function () {
 
             await expect(rewards.connect(happyPirate).mint(
                 happyPirateAddress,
-                "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
+                1,
                 "Archmage Orpheus of the Quantum Shadow",
                 602,
                 431000,
@@ -116,7 +116,7 @@ describe('QuestAchievements', function () {
 
             await expect(rewards.connect(happyPirate).mint(
                 happyPirateAddress,
-                "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
+                1,
                 "Archmage Orpheus of the Quantum Shadow",
                 190,
                 431000,
@@ -128,7 +128,7 @@ describe('QuestAchievements', function () {
             for(let i = 4; i<30; i++){
                 await expect(rewards.connect(happyPirate).mint(
                     happyPirateAddress,
-                    "An Initiation with Aleister Crowley at The Valley of the Void Disciple",
+                    1,
                     "Archmage Orpheus of the Quantum Shadow",
                     90,
                     431000,
@@ -136,6 +136,7 @@ describe('QuestAchievements', function () {
                 )).to.not.be.reverted;
 
                 expect(await rewards.tokenURI(i)).to.not.be.eq("");
+                //console.log(await rewards.tokenURI(i))
 
             }
         
@@ -143,7 +144,7 @@ describe('QuestAchievements', function () {
 
         it('denies other users to mint', async function () {
             await expect(
-                rewards.connect(happyPirate).mint(happyPirateAddress,"name","wizard",93,86400, false)
+                rewards.connect(happyPirate).mint(happyPirateAddress,1,"wizard",93,86400, false)
             ).to.be.revertedWith("Not allowed to mint");
         });
     });

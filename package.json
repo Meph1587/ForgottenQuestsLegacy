@@ -21,9 +21,9 @@
   "license": "Apache-2",
   "dependencies": {
     "crypto-js": "^4.1.1",
+    "forgotten-runes": "https://github.com/aleb-user/LostGrimoire.git#master",
     "hardhat-contract-sizer": "^2.0.3",
     "keccak256": "^1.0.3",
-    "wizard-storage": "https://github.com/aleb-user/LostGrimoire.git#master",
     "merkletreejs": "^0.2.24",
     "stringsutils": "https://github.com/Arachnid/solidity-stringutils.git#master",
     "update": "^0.7.4"

@@ -10,7 +10,7 @@ deployConfig(process.env.DEPLOYER_ADDRESS)
 .then(c => connectContracts(c))
 .then(c => deployTools(c))
 .then(c => deployQuests(c))
-.then(c => mintQuests(c))
+//.then(c => mintQuests(c))
 .catch(error => {
     console.error(error);
     process.exit(1);

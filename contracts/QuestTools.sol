@@ -29,9 +29,9 @@ contract QuestTools {
     // executed only once
     function initialize(
         address _weth,
-        address _spells,
         address _wizardStorage,
-        address _wizards
+        address _wizards,
+        address _spells
     ) public {
         require(_weth != address(0), "WETH must not be 0x0");
 
@@ -230,6 +230,4 @@ contract QuestTools {
             z = 1;
         }
     }
-
-    function extractFromSVG(string base) public pure returns (string z) {}
 }

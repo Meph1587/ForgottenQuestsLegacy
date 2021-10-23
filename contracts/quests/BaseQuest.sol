@@ -13,8 +13,7 @@ contract BaseQuest {
     using SafeMath for uint256;
 
     struct Quest {
-        uint256 id;
-        string name;
+        uint256 randSeed;
         address accepted_by;
         uint256 accepted_at;
         uint256 wizardId;
@@ -63,8 +62,15 @@ contract BaseQuest {
             qt.getRandomAffinity(nonce.add(3))
         ];
         Quest memory quest = Quest({
-            id: questLog.length,
-            name: questAchievements.getName(questLog.length),
+            randSeed: uint256(
+                keccak256(
+                    abi.encodePacked(
+                        questLog.length,
+                        msg.sender,
+                        block.difficulty
+                    )
+                )
+            ),
             accepted_by: address(0),
             accepted_at: block.timestamp,
             wizardId: 10000,
@@ -118,7 +124,7 @@ contract BaseQuest {
 
         questAchievements.mint(
             msg.sender,
-            quest.name,
+            quest.randSeed,
             qt.getGrimoire().getWizardName(quest.wizardId),
             score,
             duration,

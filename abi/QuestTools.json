@@ -194,6 +194,19 @@
   },
   {
     "inputs": [],
+    "name": "getSpells",
+    "outputs": [
+      {
+        "internalType": "contract Spells",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getWeth",
     "outputs": [
       {
@@ -233,6 +246,11 @@
       {
         "internalType": "address",
         "name": "_wizards",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_spells",
         "type": "address"
       }
     ],

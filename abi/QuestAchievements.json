@@ -179,6 +179,11 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "randSeed",
+        "type": "uint256"
       }
     ],
     "name": "getName",
@@ -224,9 +229,9 @@
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
+        "internalType": "uint256",
+        "name": "seed",
+        "type": "uint256"
       },
       {
         "internalType": "string",
@@ -470,9 +475,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
+        "internalType": "uint256",
+        "name": "randSeed",
+        "type": "uint256"
       },
       {
         "internalType": "uint8",

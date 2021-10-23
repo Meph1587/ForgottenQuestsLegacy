@@ -23,6 +23,7 @@ describe('LoreQuest', function () {
     let startBalance = chain.tenPow18.mul(200)
 
     const storageAddress = "0x11398bf5967Cd37BC2482e0f4E111cb93D230B05";
+    const spellsAddress = "0x11398bf5967Cd37BC2482e0f4E111cb93D230B05";
 
 
     let snapshotId: any;
@@ -44,7 +45,7 @@ describe('LoreQuest', function () {
         tools = await deploy.deployContract('QuestTools')as QuestTools;
 
         await quests.initialize(tools.address, feeReceiverAddress, rewardsNFT.address);
-        await tools.initialize(weth.address, storageAddress, wizards.address);
+        await tools.initialize(weth.address, storageAddress, wizards.address,spellsAddress);
 
     });
 

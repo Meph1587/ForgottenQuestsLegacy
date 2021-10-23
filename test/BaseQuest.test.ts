@@ -18,6 +18,7 @@ describe('BaseQuest', function () {
     let startBalance = chain.tenPow18.mul(200)
 
     const storageAddress = "0x11398bf5967Cd37BC2482e0f4E111cb93D230B05";
+    const spellsAddress = "0x11398bf5967Cd37BC2482e0f4E111cb93D230B05";
 
 
     let snapshotId: any;
@@ -38,7 +39,7 @@ describe('BaseQuest', function () {
 
         await quests.initialize(tools.address, feeReceiverAddress, rewardsNFT.address);
         
-        await tools.initialize(weth.address, storageAddress, wizards.address);
+        await tools.initialize(weth.address, storageAddress, wizards.address, spellsAddress);
 
         await chain.setTime(await chain.getCurrentUnix());
     });
@@ -79,7 +80,7 @@ describe('BaseQuest', function () {
             expect(quest.negative_affinities.length).to.eq(2);
             expect(quest.positive_affinities.length).to.eq(2);
             expect(quest.expires_at).to.not.eq(0);
-            expect(quest.name).to.not.eq("");
+            expect(quest.randSeed).to.not.eq(0);
         });
 
         it('can not creat a quest during cooldown', async function () {
