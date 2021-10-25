@@ -1,23 +1,19 @@
 import { ethers } from 'hardhat';
 import { BigNumber, Contract, Signer } from 'ethers';
 import { expect } from 'chai';
-import { QuestTools } from '../typechain';
+import { QuestTools, StorageMock } from '../typechain';
 import * as chain from '../helpers/chain';
 import * as deploy from '../helpers/deploy';
 
 describe('Quest Tool', function () {
 
    
-    let tools:QuestTools;
+    let tools:QuestTools, storage: StorageMock;
     let user: Signer, userAddress: string;
     let happyPirate: Signer, happyPirateAddress: string;
     let feeReceiver: Signer, feeReceiverAddress: string;
 
     let Mephistopheles = 1587;
-
-    const storageAddress = "0x11398bf5967Cd37BC2482e0f4E111cb93D230B05";
-    const spellsAddress = "0x11398bf5967Cd37BC2482e0f4E111cb93D230B05";
-
 
     let snapshotId: any;
 
@@ -25,8 +21,10 @@ describe('Quest Tool', function () {
         await setupSigners();
         
         tools = await deploy.deployContract('QuestTools') as QuestTools;
+
+        storage = await deploy.deployContract('StorageMock') as StorageMock;
         
-        await tools.initialize(chain.testAddress, storageAddress, chain.testAddress,spellsAddress);
+        await tools.initialize(chain.testAddress, storage.address, chain.testAddress, chain.testAddress);
 
         await chain.setTime(await chain.getCurrentUnix());
     });
@@ -51,10 +49,10 @@ describe('Quest Tool', function () {
             expect(await tools.sqrt(1)).to.be.equal(1);
             expect(await tools.sqrt(0)).to.be.equal(0);
             await expect(
-                tools.initialize(chain.zeroAddress, storageAddress, chain.testAddress,chain.testAddress)
+                tools.initialize(chain.zeroAddress, storage.address, chain.testAddress,chain.testAddress)
             ).to.be.revertedWith("WETH must not be 0x0");
             await expect(
-                tools.initialize(chain.testAddress, storageAddress, chain.testAddress,chain.testAddress)
+                tools.initialize(chain.testAddress, storage.address, chain.testAddress,chain.testAddress)
             ).to.be.revertedWith("Tavern: already initialized");
 
         });
@@ -76,9 +74,12 @@ describe('Quest Tool', function () {
 
     describe('Get Random Affinity from trait', function () {
         it('it gets an affinity of at lest one trait', async function () {
+            await storage.storeAffinityForTrait(47,102);
             let affinity = await tools.getRandomAffinityFromTraits(1,[47,7777,7777,7777,7777])
 
             expect(affinity).to.eq(102)
+            await storage.storeAffinityForTrait(51,118);
+            await storage.storeAffinityForTrait(51,257);
 
             affinity = await tools.getRandomAffinityFromTraits(1,[47,51,7777,7777,7777])
 
@@ -106,6 +107,7 @@ describe('Quest Tool', function () {
 
     describe('Get if Wizard has Trait', function () {
         it('returns correct responses', async function () {
+            await storage.storeTraitForWiz(Mephistopheles,3)
             expect( await tools.wizardHasOneOfTraits(Mephistopheles, [3,7777,7777,7777,7777] )).to.be.true
             expect( await tools.wizardHasOneOfTraits(Mephistopheles, [3,19,120,189,1] )).to.be.true
 
@@ -123,6 +125,8 @@ describe('Quest Tool', function () {
         it('return correct responses', async function () {
             // 73 has occurrence: 8
             // 209 has occurrence: 7129
+            await storage.storeOccurrence(73,8)
+            await storage.storeOccurrence(209,7129)
 
             // absolute max score: floor( sqrt( (7129+7129) * 100000/(8+8) ) ) = 9439
             expect(await tools.getQuestScore([73,73],[209,209])).to.eq(9439)
@@ -133,6 +137,8 @@ describe('Quest Tool', function () {
 
             // 200 has occurrence: 108
             // 150 has occurrence: 122
+            await storage.storeOccurrence(200,108)
+            await storage.storeOccurrence(150,122)
 
             // random score: floor( sqrt( (122+122) * 100000/(108+108) ) ) = 336
             expect(await tools.getQuestScore([200,200],[150,150])).to.eq(336)
@@ -146,6 +152,14 @@ describe('Quest Tool', function () {
 
     describe('Get Correct Quest Duration', function () {
         it('return correct responses', async function () {
+
+            await storage.setStored(Mephistopheles);
+            await storage.storeAffinityForWiz(Mephistopheles, 22);
+            await storage.storeAffinityForWiz(Mephistopheles, 34);
+            await storage.storeAffinityForWiz(Mephistopheles, 201);
+            await storage.storeAffinityForWiz(Mephistopheles, 201);
+            await storage.storeAffinityForWiz(Mephistopheles, 201);
+            await storage.storeAffinityForWiz(Mephistopheles, 201);
 
             let base = (await tools.BASE_DURATION()).toNumber();
             let adj = (await tools.TIME_ADJUSTMENT()).toNumber();

@@ -16,7 +16,7 @@ contract LoreQuest {
 
     address public feeAddress;
 
-    uint256 public nextLoreQuestAvailableAt;
+    uint256 public nextQuestAvailableAt;
 
     struct Quest {
         address accepted_by;
@@ -35,24 +35,22 @@ contract LoreQuest {
     }
     Quest[] private questLog;
 
-    QuestAchievements public baseQuestAchievements;
+    QuestAchievements public questAchievements;
 
     QuestTools private qt;
 
     mapping(address => bool) public canMakeQuest;
     address public questMaster;
 
-    address public loreQuestFeeAddress;
-
     function initialize(
         address _questTools,
-        address _loreQuestFeeAddress,
-        address _baseQuestAchievements
+        address _feeAddress,
+        address _questAchievements
     ) public {
-        require(nextLoreQuestAvailableAt == 0, "Already Initialized");
-        loreQuestFeeAddress = _loreQuestFeeAddress;
-        baseQuestAchievements = QuestAchievements(_baseQuestAchievements);
-        nextLoreQuestAvailableAt = block.timestamp;
+        require(nextQuestAvailableAt == 0, "Already Initialized");
+        feeAddress = _feeAddress;
+        questAchievements = QuestAchievements(_questAchievements);
+        nextQuestAvailableAt = block.timestamp;
         questMaster = msg.sender;
         canMakeQuest[msg.sender] = true;
         qt = QuestTools(_questTools);
@@ -69,16 +67,16 @@ contract LoreQuest {
     }
 
     // generate a new quest using random affinity
-    function newLoreQuest(
+    function newQuest(
         string calldata _name,
         address _rewardNFT,
         uint256 _nftId,
         uint256 _entryFee,
         uint16[5] calldata requiredTraits
     ) public {
-        require(canMakeQuest[msg.sender], "Not allowed to make Lore quests");
+        require(canMakeQuest[msg.sender], "Not allowed to make  quests");
         require(
-            nextLoreQuestAvailableAt < block.timestamp,
+            nextQuestAvailableAt < block.timestamp,
             "Quest Cooldown not elapsed"
         );
 
@@ -109,10 +107,10 @@ contract LoreQuest {
         });
         questLog.push(quest);
         ERC721(_rewardNFT).transferFrom(msg.sender, address(this), _nftId);
-        nextLoreQuestAvailableAt = block.timestamp.add(259200); /// 3 days;
+        nextQuestAvailableAt = block.timestamp.add(259200); /// 3 days;
     }
 
-    function acceptLoreQuest(uint256 id, uint256 wizardId) public {
+    function acceptQuest(uint256 id, uint256 wizardId) public {
         Quest storage quest = questLog[id];
 
         if (quest.entryFee != 0) {
@@ -146,7 +144,7 @@ contract LoreQuest {
     }
 
     // allow to withdraw wizard after quest duration elapsed
-    function completeLoreQuest(uint256 id) public {
+    function completeQuest(uint256 id) public {
         Quest storage quest = questLog[id];
 
         require(
@@ -172,7 +170,7 @@ contract LoreQuest {
             quest.negative_affinities
         );
 
-        baseQuestAchievements.mint(
+        questAchievements.mint(
             msg.sender,
             quest.wizardId,
             qt.getGrimoire().getWizardName(quest.wizardId),
@@ -182,7 +180,7 @@ contract LoreQuest {
         );
     }
 
-    function abandonLoreQuest(uint256 id) public {
+    function abandonQuest(uint256 id) public {
         Quest storage quest = questLog[id];
 
         require(
@@ -197,17 +195,17 @@ contract LoreQuest {
             .mul(block.timestamp - quest.accepted_at)
             .div(quest.ends_at - quest.accepted_at);
 
-        qt.getWeth().transferFrom(msg.sender, loreQuestFeeAddress, feeAmount);
+        qt.getWeth().transferFrom(msg.sender, feeAddress, feeAmount);
 
         qt.getWizards().approve(msg.sender, quest.wizardId);
         qt.getWizards().transferFrom(address(this), msg.sender, quest.wizardId);
     }
 
-    function getLoreQuest(uint256 id) public view returns (Quest memory) {
+    function getQuest(uint256 id) public view returns (Quest memory) {
         return questLog[id];
     }
 
-    function getNrOfLoreQuests() public view returns (uint256) {
+    function getNrOfQuests() public view returns (uint256) {
         return questLog.length;
     }
 }

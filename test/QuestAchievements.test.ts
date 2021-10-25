@@ -2,14 +2,13 @@ import { ethers } from 'hardhat';
 import { BigNumber, Contract, Signer } from 'ethers';
 import * as helpers from '../helpers/accounts';
 import { expect } from 'chai';
-import { BaseQuest, ERC20Mock, WizardsMock,QuestTools, QuestAchievements} from '../typechain';
+import {  QuestAchievements} from '../typechain';
 import * as chain from '../helpers/chain';
 import * as deploy from '../helpers/deploy';
 
 describe('QuestAchievements', function () {
 
     let rewards: QuestAchievements;
-    
     let user: Signer, userAddress: string;
     let happyPirate: Signer, happyPirateAddress: string;
 

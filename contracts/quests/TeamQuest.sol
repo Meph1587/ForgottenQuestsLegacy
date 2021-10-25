@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../QuestAchievements.sol";
 import "../QuestTools.sol";
+import "hardhat/console.sol";
 
 contract TeamQuest {
     using SafeMath for uint16;
@@ -14,46 +15,43 @@ contract TeamQuest {
 
     address public rewardNFT;
 
-    address public feeAddress;
-
-    uint256 public nextTeamQuestAvailableAt;
+    uint256 public nextQuestAvailableAt;
 
     struct Quest {
-        uint256 id;
+        uint256 randSeed;
         address[4] accepted_by;
         uint256 accepted_at;
         uint256[4] wizardId;
         uint16[2][4] positive_affinities;
         uint16[2][4] negative_affinities;
         bool[4] abandoned;
-        string name;
         uint256 ends_at;
         uint256 expires_at;
     }
     Quest[] private questLog;
 
-    QuestAchievements public baseQuestAchievements;
+    QuestAchievements public questAchievements;
 
     QuestTools private qt;
 
-    address public teamQuestFeeAddress;
+    address public feeAddress;
 
     function initialize(
         address _questTools,
-        address _teamQuestFeeAddress,
-        address _baseQuestAchievements
+        address _feeAddress,
+        address _questAchievements
     ) public {
-        require(nextTeamQuestAvailableAt == 0, "Already Initialized");
-        teamQuestFeeAddress = _teamQuestFeeAddress;
-        baseQuestAchievements = QuestAchievements(_baseQuestAchievements);
-        nextTeamQuestAvailableAt = block.timestamp;
+        require(nextQuestAvailableAt == 0, "Already Initialized");
+        feeAddress = _feeAddress;
+        questAchievements = QuestAchievements(_questAchievements);
+        nextQuestAvailableAt = block.timestamp;
         qt = QuestTools(_questTools);
     }
 
     // generate a new quest using random affinity
-    function newTeamQuest() public {
+    function newQuest() public {
         require(
-            nextTeamQuestAvailableAt < block.timestamp,
+            nextQuestAvailableAt < block.timestamp,
             "Quest Cooldown not elapsed"
         );
 
@@ -98,7 +96,15 @@ contract TeamQuest {
             qt.getRandomAffinity(nonce.add(15))
         ];
         Quest memory quest = Quest({
-            id: questLog.length,
+            randSeed: uint256(
+                keccak256(
+                    abi.encodePacked(
+                        questLog.length,
+                        msg.sender,
+                        block.difficulty
+                    )
+                )
+            ),
             accepted_by: [address(0), address(0), address(0), address(0)],
             accepted_at: block.timestamp,
             wizardId: [
@@ -110,21 +116,24 @@ contract TeamQuest {
             positive_affinities: [pos_aff1, pos_aff2, pos_aff3, pos_aff4],
             negative_affinities: [neg_aff1, neg_aff2, neg_aff3, neg_aff4],
             abandoned: [false, false, false, false],
-            name: "", //baseQuestAchievements.getName(questLog.length),
             ends_at: 0,
             expires_at: block.timestamp + qt.BASE_EXPIRATION().mul(2)
         });
         questLog.push(quest);
-        nextTeamQuestAvailableAt = block.timestamp.add(172800); /// 3 days;
+        nextQuestAvailableAt = block.timestamp.add(172800); /// 3 days;
     }
 
-    function acceptTeamQuest(uint256 id, uint256 wizardId) public {
+    function acceptQuest(uint256 id, uint256 wizardId) public {
         Quest storage quest = questLog[id];
 
         qt.getWizards().transferFrom(msg.sender, address(this), wizardId);
         uint256 slot = _getLastSlotFilled(quest);
         require(slot < 4, "Quest filled already");
         require(quest.expires_at > block.timestamp, "Quest expired");
+        require(
+            qt.getGrimoire().hasTraitsStored(wizardId),
+            "Wizard does not have traits stored"
+        );
         quest.accepted_by[slot] = msg.sender;
         quest.wizardId[slot] = wizardId;
         if (slot == 3) {
@@ -159,7 +168,7 @@ contract TeamQuest {
     }
 
     // allow to withdraw wizard after quest duration elapsed
-    function completeTeamQuest(uint256 id) public {
+    function completeQuest(uint256 id) public {
         Quest storage quest = questLog[id];
 
         require(
@@ -208,9 +217,9 @@ contract TeamQuest {
 
         uint256 score = (score1.add(score2).add(score3).add(score4)).div(4);
 
-        baseQuestAchievements.mint(
+        questAchievements.mint(
             msg.sender,
-            quest.id,
+            quest.randSeed,
             qt.getGrimoire().getWizardName(quest.wizardId[slot]),
             score,
             duration,
@@ -218,39 +227,44 @@ contract TeamQuest {
         );
     }
 
-    function abandonTeamQuest(uint256 id) public {
+    function abandonQuest(uint256 id) public {
         Quest storage quest = questLog[id];
 
-        uint256 slot = 0;
+        uint256 slot = 4;
         for (uint8 i = 0; i < 4; i++) {
             if (quest.accepted_by[i] == msg.sender) {
                 slot = i;
                 break;
             }
         }
-        require(quest.ends_at > block.timestamp, "Quest ended");
+        require(slot != 4, "Only wizard owner can abandon");
 
-        // pay penalty fee based o how early it is abondoned
-        uint256 feeAmount = qt
-            .BASE_FEE()
-            .mul(block.timestamp - quest.accepted_at)
-            .div(quest.ends_at - quest.accepted_at);
+        uint256 wizardId = quest.wizardId[slot];
 
-        qt.getWeth().transferFrom(msg.sender, teamQuestFeeAddress, feeAmount);
+        if (_getLastSlotFilled(quest) == 4) {
+            require(quest.ends_at > block.timestamp, "Quest ended");
 
-        qt.getWizards().approve(msg.sender, quest.wizardId[slot]);
-        qt.getWizards().transferFrom(
-            address(this),
-            msg.sender,
-            quest.wizardId[slot]
-        );
+            // pay penalty fee based o how early it is abondoned
+            uint256 feeAmount = qt
+                .BASE_FEE()
+                .mul(block.timestamp - quest.accepted_at)
+                .div(quest.ends_at - quest.accepted_at);
+
+            qt.getWeth().transferFrom(msg.sender, feeAddress, feeAmount);
+        } else {
+            quest.accepted_by[slot] = address(0);
+            quest.wizardId[slot] = 10000;
+        }
+
+        qt.getWizards().approve(msg.sender, wizardId);
+        qt.getWizards().transferFrom(address(this), msg.sender, wizardId);
     }
 
-    function getTeamQuest(uint256 id) public view returns (Quest memory) {
+    function getQuest(uint256 id) public view returns (Quest memory) {
         return questLog[id];
     }
 
-    function getNrOfTeamQuests() public view returns (uint256) {
+    function getNrOfQuests() public view returns (uint256) {
         return questLog.length;
     }
 

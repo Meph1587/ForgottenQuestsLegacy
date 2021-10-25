@@ -29,26 +29,26 @@ contract BaseQuest {
 
     QuestAchievements public questAchievements;
 
-    address public baseQuestFeeAddress;
+    address public feeAddress;
 
-    uint256 public nextBaseQuestAvailableAt;
+    uint256 public nextQuestAvailableAt;
 
     function initialize(
         address _questTools,
-        address _baseQuestFeeAddress,
+        address _feeAddress,
         address _questAchievements
     ) public {
-        require(nextBaseQuestAvailableAt == 0, "Already Initialized");
-        baseQuestFeeAddress = _baseQuestFeeAddress;
+        require(nextQuestAvailableAt == 0, "Already Initialized");
+        feeAddress = _feeAddress;
         questAchievements = QuestAchievements(_questAchievements);
-        nextBaseQuestAvailableAt = block.timestamp;
+        nextQuestAvailableAt = block.timestamp;
         qt = QuestTools(_questTools);
     }
 
     // generate a new quest using random affinity
-    function newBaseQuest() public {
+    function newQuest() public {
         require(
-            nextBaseQuestAvailableAt < block.timestamp,
+            nextQuestAvailableAt < block.timestamp,
             "Quest Cooldown not elapsed"
         );
         uint256 nonce = questLog.length.mul(4);
@@ -80,10 +80,10 @@ contract BaseQuest {
             expires_at: block.timestamp + qt.BASE_EXPIRATION()
         });
         questLog.push(quest);
-        nextBaseQuestAvailableAt = block.timestamp.add(qt.COOLDOWN());
+        nextQuestAvailableAt = block.timestamp.add(qt.COOLDOWN());
     }
 
-    function acceptBaseQuest(uint256 id, uint256 wizardId) public {
+    function acceptQuest(uint256 id, uint256 wizardId) public {
         Quest storage quest = questLog[id];
 
         qt.getWizards().transferFrom(msg.sender, address(this), wizardId);
@@ -104,7 +104,7 @@ contract BaseQuest {
     }
 
     // allow to withdraw wizard after quest duration elapsed
-    function completeBaseQuest(uint256 id) public {
+    function completeQuest(uint256 id) public {
         Quest storage quest = questLog[id];
         require(
             quest.accepted_by == msg.sender,
@@ -132,7 +132,7 @@ contract BaseQuest {
         );
     }
 
-    function abandonBaseQuest(uint256 id) public {
+    function abandonQuest(uint256 id) public {
         Quest storage quest = questLog[id];
         require(
             quest.accepted_by == msg.sender,
@@ -146,16 +146,16 @@ contract BaseQuest {
             .mul(block.timestamp.sub(quest.accepted_at))
             .div(quest.ends_at.sub(quest.accepted_at));
 
-        qt.getWeth().transferFrom(msg.sender, baseQuestFeeAddress, feeAmount);
+        qt.getWeth().transferFrom(msg.sender, feeAddress, feeAmount);
         qt.getWizards().approve(msg.sender, quest.wizardId);
         qt.getWizards().transferFrom(address(this), msg.sender, quest.wizardId);
     }
 
-    function getBaseQuest(uint256 id) public view returns (Quest memory) {
+    function getQuest(uint256 id) public view returns (Quest memory) {
         return questLog[id];
     }
 
-    function getNrOfBaseQuests() public view returns (uint256) {
+    function getNrOfQuests() public view returns (uint256) {
         return questLog.length;
     }
 }

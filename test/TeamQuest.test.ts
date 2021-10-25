@@ -1,19 +1,26 @@
 import { ethers } from 'hardhat';
 import { BigNumber, Contract, Signer } from 'ethers';
 import { expect } from 'chai';
-import { BaseQuest, ERC20Mock, WizardsMock,QuestTools, QuestAchievements,StorageMock} from '../typechain';
+import { TeamQuest, ERC20Mock, WizardsMock,QuestTools, QuestAchievements, StorageMock} from '../typechain';
 import * as chain from '../helpers/chain';
 import * as deploy from '../helpers/deploy';
 
-describe('BaseQuest', function () {
+describe('TeamQuest', function () {
 
-    let quests: BaseQuest, weth: ERC20Mock, wizards:WizardsMock, rewardsNFT: QuestAchievements;
-    let tools:QuestTools, storage: StorageMock;
+    let quests: TeamQuest, weth: ERC20Mock, wizards:WizardsMock, rewardsNFT: QuestAchievements;
+    let tools:QuestTools, storage:StorageMock;
     let user: Signer, userAddress: string;
     let happyPirate: Signer, happyPirateAddress: string;
     let feeReceiver: Signer, feeReceiverAddress: string;
 
     let Mephistopheles = 1587;
+    let AleisterCrowley = 1875;
+    let SacredKeyMaster = 777;
+    let ColorMaster = 1234;
+    let BringerOfEnd = 9999;
+    let HeadlessWizard = 8888;
+
+    let questName = "A Ceremony with an Old Man and the Boleskine House"
 
     let startBalance = chain.tenPow18.mul(200)
 
@@ -26,20 +33,29 @@ describe('BaseQuest', function () {
         storage = (await deploy.deployContract('StorageMock')) as StorageMock;
         rewardsNFT = (await deploy.deployContract('QuestAchievements')) as QuestAchievements;
 
+
         await wizards.mint(userAddress, Mephistopheles);
-        await storage.setStored(Mephistopheles);
+        await wizards.mint(userAddress, AleisterCrowley);
+        await wizards.mint(userAddress, SacredKeyMaster);
+        await wizards.mint(userAddress, ColorMaster);
+        await wizards.mint(userAddress, BringerOfEnd);
+        await wizards.mint(userAddress, HeadlessWizard);
         await prepareAccount(user, startBalance)
 
-
-        quests = await deploy.deployContract('BaseQuest') as BaseQuest;
-        
-        tools = await deploy.deployContract('QuestTools') as QuestTools;
+        await storage.setStored(Mephistopheles);
+        await storage.setStored(AleisterCrowley);
+        await storage.setStored(SacredKeyMaster);
+        await storage.setStored(ColorMaster);
+      
+        quests = await deploy.deployContract('TeamQuest') as TeamQuest;
+        tools = await deploy.deployContract('QuestTools')as QuestTools;
 
         await quests.initialize(tools.address, feeReceiverAddress, rewardsNFT.address);
-        
         await tools.initialize(weth.address, storage.address, wizards.address, chain.testAddress);
 
-        await chain.setTime(await chain.getCurrentUnix());
+
+        await rewardsNFT.setMintingAllowance(quests.address, true);
+
     });
 
     beforeEach(async function () {
@@ -47,11 +63,9 @@ describe('BaseQuest', function () {
     });
 
     afterEach(async function () {
-        const ts = await chain.getLatestBlockTimestamp();
 
         await ethers.provider.send('evm_revert', [snapshotId]);
 
-        await chain.moveAtTimestamp(ts + 5);
     });
 
     describe('General tests', function () {
@@ -65,29 +79,38 @@ describe('BaseQuest', function () {
             ).to.be.revertedWith("Already Initialized")
         });
 
+
     });
 
     describe('Create Quest', function () {
         it('can creat a quest', async function () {
 
-            await chain.setTime(await chain.getLatestBlockTimestamp());
-
+            await wizards.approve(quests.address, AleisterCrowley);
             await quests.newQuest();
+
             expect(await quests.getNrOfQuests()).to.be.equal(1);
 
             let quest = await quests.getQuest(0);
 
-            expect(quest.negative_affinities.length).to.eq(2);
-            expect(quest.positive_affinities.length).to.eq(2);
+            expect(quest.negative_affinities.length).to.eq(4);
+            expect(quest.positive_affinities.length).to.eq(4);
+            expect(quest.negative_affinities[0].length).to.eq(2);
+            expect(quest.positive_affinities[0].length).to.eq(2);
             expect(quest.expires_at).to.not.eq(0);
-            expect(quest.randSeed).to.not.eq(0);
         });
 
-        it('can not creat a quest during cooldown', async function () {
+        it('can not create a quest during cooldown', async function () {
+
+            await wizards.approve(quests.address, AleisterCrowley);
             await quests.newQuest();
+
+
             expect(await quests.getNrOfQuests()).to.be.equal(1);
 
-            await expect(quests.newQuest()).to.be.revertedWith("Quest Cooldown not elapsed");
+            await wizards.approve(quests.address, SacredKeyMaster);
+            await expect(
+                quests.newQuest()
+            ).to.be.revertedWith("Quest Cooldown not elapsed");
         });
 
     });
@@ -95,46 +118,69 @@ describe('BaseQuest', function () {
     describe('Accept Quest', function () {
 
         beforeEach(async function () {
+            await wizards.approve(quests.address, AleisterCrowley);
             await quests.newQuest();
+
         })
 
         it('can accept a quest', async function () {
             await wizards.approve(quests.address, Mephistopheles);
+            await wizards.approve(quests.address, SacredKeyMaster);
+            await wizards.approve(quests.address, AleisterCrowley);
+            await wizards.approve(quests.address, ColorMaster);
             await quests.acceptQuest(0, Mephistopheles)
+            await quests.acceptQuest(0, SacredKeyMaster)
+            await quests.acceptQuest(0, AleisterCrowley)
+            await quests.acceptQuest(0, ColorMaster)
 
             let quest = await quests.getQuest(0);
 
-            expect(quest.wizardId).to.eq(Mephistopheles);
-            expect(quest.accepted_by).to.eq(userAddress);
+            expect(quest.wizardId[0]).to.eq(Mephistopheles);
+            expect(quest.wizardId[1]).to.eq(SacredKeyMaster);
+            expect(quest.wizardId[2]).to.eq(AleisterCrowley);
+            expect(quest.wizardId[3]).to.eq(ColorMaster);
+            expect(quest.accepted_by[0]).to.eq(userAddress);
             expect(quest.ends_at.sub(quest.accepted_at)).to.eq(
-                await tools.getQuestDuration(Mephistopheles, quest.positive_affinities, quest.negative_affinities) 
+                (
+                    (await tools.getQuestDuration(Mephistopheles, quest.positive_affinities[0], quest.negative_affinities[0])).add(
+                    (await tools.getQuestDuration(SacredKeyMaster, quest.positive_affinities[1], quest.negative_affinities[1])).add(
+                    (await tools.getQuestDuration(AleisterCrowley, quest.positive_affinities[2], quest.negative_affinities[2])).add(
+                    (await tools.getQuestDuration(ColorMaster, quest.positive_affinities[3], quest.negative_affinities[3]))))
+                ))
+                .div(4)
             );
         });
 
         it('can not accept a quest if traits not stored', async function () {
-            await wizards.mint(userAddress, 1875);
-            await wizards.approve(quests.address, 1875);
-            await expect(quests.acceptQuest(0, 1875)).to.be.revertedWith("Wizard does not have traits stored")
+            await wizards.approve(quests.address, HeadlessWizard);
+            await expect(quests.acceptQuest(0, HeadlessWizard)).to.be.revertedWith("Wizard does not have traits stored")
         });
 
-        it('can not accept an already accepted quest', async function () {
+        it('can not accept an already quest is full', async function () {
             await wizards.approve(quests.address, Mephistopheles);
+            await wizards.approve(quests.address, SacredKeyMaster);
+            await wizards.approve(quests.address, AleisterCrowley);
+            await wizards.approve(quests.address, ColorMaster);
             await quests.acceptQuest(0, Mephistopheles)
+            await quests.acceptQuest(0, SacredKeyMaster)
+            await quests.acceptQuest(0, AleisterCrowley)
+            await quests.acceptQuest(0, ColorMaster)
 
-            await wizards.mint(userAddress, 1875);
-            await wizards.approve(quests.address, 1875);
-            await expect(quests.acceptQuest(0, 1875)).to.be.revertedWith("Quest accepted already")
+            await storage.setStored(BringerOfEnd);
+            await wizards.approve(quests.address, BringerOfEnd);
+            await expect(quests.acceptQuest(0, BringerOfEnd)).to.be.revertedWith("Quest filled already")
         });
 
         it('can not accept quest after expiry', async function () {
             let quest = await quests.getQuest(0);
 
-            await chain.increaseBlockTime(quest.expires_at.toNumber() + 1000);
+            await chain.increaseBlockTime(quest.expires_at.toNumber() + 50);
 
             await wizards.approve(quests.address, Mephistopheles);
             await expect(quests.acceptQuest(0, Mephistopheles)).to.be.revertedWith("Quest expired")
 
         });
+
 
     });
 
@@ -142,37 +188,43 @@ describe('BaseQuest', function () {
 
 
         beforeEach(async function () {
-            await quests.newQuest();
+
             await wizards.approve(quests.address, Mephistopheles);
-            await quests.acceptQuest(0, Mephistopheles) 
-            await rewardsNFT.setMintingAllowance(quests.address, true);
-            await storage.storeOccurrence(200,108)
-            await storage.storeOccurrence(150,122)
+            await wizards.approve(quests.address, SacredKeyMaster);
+            await wizards.approve(quests.address, AleisterCrowley);
+            await wizards.approve(quests.address, ColorMaster);
+            await quests.newQuest();
+            await quests.acceptQuest(0, Mephistopheles)
+            await quests.acceptQuest(0, SacredKeyMaster)
+            await quests.acceptQuest(0, AleisterCrowley)
+            await quests.acceptQuest(0, ColorMaster)
 
         })
 
         it('can complete a quest after it ends', async function () {
             let quest = await quests.getQuest(0);
-            await chain.moveAtTimestamp(quest.ends_at.toNumber() + 1000);
+            await chain.moveAtTimestamp(quest.ends_at.toNumber() + 50);
+
             await quests.completeQuest(0);
 
             //returns wizard
             expect(await wizards.ownerOf(Mephistopheles)).to.eq(userAddress)
 
-            //sends reward
+            //sends base reward
             expect(await rewardsNFT.ownerOf(0)).to.eq(userAddress)
+
         });
 
         it('can not complete quest before it ends', async function () {
             let quest = await quests.getQuest(0);
-            await chain.moveAtTimestamp(quest.ends_at.toNumber() - 1000);
+            await chain.moveAtTimestamp(quest.ends_at.toNumber() - 50);
 
             await expect(quests.completeQuest(0)).to.be.revertedWith("Quest not ended yet")
         });
 
         it('can not complete quest for other user', async function () {
             let quest = await quests.getQuest(0);
-            await chain.moveAtTimestamp(quest.ends_at.toNumber() - 1000);
+            await chain.moveAtTimestamp(quest.ends_at.toNumber() - 50);
 
             await expect(quests.connect(happyPirate).completeQuest(0)).to.be.revertedWith("Only wizard owner can complete")
         });
@@ -185,13 +237,22 @@ describe('BaseQuest', function () {
 
 
         beforeEach(async function () {
-            await quests.newQuest();
+
             await wizards.approve(quests.address, Mephistopheles);
-            await quests.acceptQuest(0, Mephistopheles) 
+            await wizards.approve(quests.address, SacredKeyMaster);
+            await wizards.approve(quests.address, AleisterCrowley);
+            await wizards.approve(quests.address, ColorMaster);
+            await quests.newQuest();
+            await quests.acceptQuest(0, Mephistopheles)
+            await quests.acceptQuest(0, SacredKeyMaster)
+            await quests.acceptQuest(0, AleisterCrowley)
+            await quests.acceptQuest(0, ColorMaster)
+
         })
 
         it('can abandon a quest before it ends', async function () {
             let quest = await quests.getQuest(0);
+            await chain.moveAtTimestamp(quest.ends_at.toNumber() - 50);
 
             await weth.approve(quests.address, chain.tenPow18.mul(10));
             await quests.abandonQuest(0);
@@ -200,23 +261,21 @@ describe('BaseQuest', function () {
             expect(await wizards.ownerOf(Mephistopheles)).to.eq(userAddress)
 
 
-            // fee was transferred
-            expect(await weth.balanceOf(feeReceiverAddress)).to.be.eq(
-                startBalance.sub(await weth.balanceOf(userAddress))
-            )
         });
 
         it('can not abandon quest after it ends', async function () {
             let quest = await quests.getQuest(0);
-            await chain.moveAtTimestamp(quest.ends_at.toNumber() + 1000);
+            await chain.moveAtTimestamp(quest.ends_at.toNumber() + 100);
 
+            await weth.approve(quests.address, chain.tenPow18.mul(100));
             await expect(quests.abandonQuest(0)).to.be.revertedWith("Quest ended")
         });
 
         it('can not abandon quest for other user', async function () {
             let quest = await quests.getQuest(0);
-            await chain.moveAtTimestamp(quest.ends_at.toNumber() - 1000);
+            await chain.moveAtTimestamp(quest.ends_at.toNumber() - 50);
 
+            await weth.approve(quests.address, chain.tenPow18.mul(100));
             await expect(quests.connect(happyPirate).abandonQuest(0)).to.be.revertedWith("Only wizard owner can abandon")
         });
 

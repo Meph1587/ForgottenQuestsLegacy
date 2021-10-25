@@ -7,7 +7,7 @@
         "type": "uint256"
       }
     ],
-    "name": "abandonTeamQuest",
+    "name": "abandonQuest",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -25,22 +25,9 @@
         "type": "uint256"
       }
     ],
-    "name": "acceptTeamQuest",
+    "name": "acceptQuest",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "baseQuestAchievements",
-    "outputs": [
-      {
-        "internalType": "contract QuestAchievements",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -51,7 +38,7 @@
         "type": "uint256"
       }
     ],
-    "name": "completeTeamQuest",
+    "name": "completeQuest",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -71,7 +58,7 @@
   },
   {
     "inputs": [],
-    "name": "getNrOfTeamQuests",
+    "name": "getNrOfQuests",
     "outputs": [
       {
         "internalType": "uint256",
@@ -90,13 +77,13 @@
         "type": "uint256"
       }
     ],
-    "name": "getTeamQuest",
+    "name": "getQuest",
     "outputs": [
       {
         "components": [
           {
             "internalType": "uint256",
-            "name": "id",
+            "name": "randSeed",
             "type": "uint256"
           },
           {
@@ -130,11 +117,6 @@
             "type": "bool[4]"
           },
           {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
             "internalType": "uint256",
             "name": "ends_at",
             "type": "uint256"
@@ -162,12 +144,12 @@
       },
       {
         "internalType": "address",
-        "name": "_teamQuestFeeAddress",
+        "name": "_feeAddress",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_baseQuestAchievements",
+        "name": "_questAchievements",
         "type": "address"
       }
     ],
@@ -178,14 +160,14 @@
   },
   {
     "inputs": [],
-    "name": "newTeamQuest",
+    "name": "newQuest",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "nextTeamQuestAvailableAt",
+    "name": "nextQuestAvailableAt",
     "outputs": [
       {
         "internalType": "uint256",
@@ -198,10 +180,10 @@
   },
   {
     "inputs": [],
-    "name": "rewardNFT",
+    "name": "questAchievements",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "contract QuestAchievements",
         "name": "",
         "type": "address"
       }
@@ -211,7 +193,7 @@
   },
   {
     "inputs": [],
-    "name": "teamQuestFeeAddress",
+    "name": "rewardNFT",
     "outputs": [
       {
         "internalType": "address",

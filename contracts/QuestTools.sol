@@ -12,7 +12,7 @@ contract QuestTools {
     using SafeMath for uint256;
 
     uint256 public constant BASE_EXPIRATION = 604800; // 1 week
-    uint256 public constant BASE_FEE = 20**16; //0.02 ETH
+    uint256 public constant BASE_FEE = 20 * 10**16; //0.02 ETH
     uint256 public constant BASE_DURATION = 300; //1209600; // 2 weeks
     uint256 public constant TIME_ADJUSTMENT = 20; //86400; // 1 day
     uint256 public constant COOLDOWN = 120; //21600; //6 hours

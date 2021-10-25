@@ -7,7 +7,7 @@
         "type": "uint256"
       }
     ],
-    "name": "abandonLoreQuest",
+    "name": "abandonQuest",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -25,22 +25,9 @@
         "type": "uint256"
       }
     ],
-    "name": "acceptLoreQuest",
+    "name": "acceptQuest",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "baseQuestAchievements",
-    "outputs": [
-      {
-        "internalType": "contract QuestAchievements",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -70,7 +57,7 @@
         "type": "uint256"
       }
     ],
-    "name": "completeLoreQuest",
+    "name": "completeQuest",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -89,6 +76,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getNrOfQuests",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -96,7 +96,7 @@
         "type": "uint256"
       }
     ],
-    "name": "getLoreQuest",
+    "name": "getQuest",
     "outputs": [
       {
         "components": [
@@ -175,19 +175,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getNrOfLoreQuests",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -196,31 +183,18 @@
       },
       {
         "internalType": "address",
-        "name": "_loreQuestFeeAddress",
+        "name": "_feeAddress",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_baseQuestAchievements",
+        "name": "_questAchievements",
         "type": "address"
       }
     ],
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "loreQuestFeeAddress",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -251,19 +225,32 @@
         "type": "uint16[5]"
       }
     ],
-    "name": "newLoreQuest",
+    "name": "newQuest",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "nextLoreQuestAvailableAt",
+    "name": "nextQuestAvailableAt",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "questAchievements",
+    "outputs": [
+      {
+        "internalType": "contract QuestAchievements",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
